@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <cstdlib>
 #include <vector>
+#include <set>
 
 #include "sisIO.hpp"
 
@@ -27,9 +28,9 @@ private:
 	public:
 		Informer(SisIO *_io);
 
-		void beginSection(const std::string& _sectionName, const int _targetCount);
-		void progress(const std::string& _message);
-		void endSection();
+		void beginJob(const std::string& _sectionName, const int _targetCount);
+		void progressJob(const std::string& _message);
+		void endJob();
 
 		~Informer();
 	private:
@@ -37,12 +38,16 @@ private:
 		SisIO *io;
 		int currentCount;
 		int targetCount;
-		bool inSection;
+		bool inJob;
+		std::string sectionName;
+		bool isUntargeted;
 	};
 
 	const std::filesystem::path HOME_DIR = std::filesystem::path(std::getenv("HOME"));
 	const std::filesystem::path LOG_FILE = HOME_DIR / LOG_FILE_NAME;
-	const std::vector<const char *> SIMPLE_FLIP_EXTS;
+	const std::filesystem::path ROOT_PATH;
+	const std::set<std::string> SIMPLE_FLIP_EXTS;
+	std::set<std::string> ignores;
 
 	int flipFile(const std::filesystem::path& _filePath);
 	void singleByteFlip(std::fstream& _stream);
@@ -50,13 +55,12 @@ private:
 
 	int flipPath(const std::filesystem::path& _path, const int _bias);
 
-
 	SisIO io;
-
-public:
-	Box();
 	Informer informer;
 
+public:
+	Box(const std::filesystem::path& _rootPath);
+	int flipAllFiles();
 	~Box();
 };
 

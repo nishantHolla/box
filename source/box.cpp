@@ -3,13 +3,14 @@
 #include <fstream>
 #include <cmath>
 
-Box::Box() :
+Box::Box(const std::filesystem::path& _rootPath) :
+	ROOT_PATH (_rootPath),
 	SIMPLE_FLIP_EXTS {".jpg", ".png", ".mp4", ".mp3", ".mkv"},
+	ignores {".box", ".git"},
 	io (LOG_FILE),
 	informer (&io)
 {
 	std::filesystem::remove(LOG_FILE);
-
 }
 
 void Box::singleByteFlip(std::fstream& _stream) {
@@ -64,13 +65,38 @@ int Box::flipFile(const std::filesystem::path& _filePath) {
 	}
 
 	const std::string ext = _filePath.extension().string();
-	if ( std::find(SIMPLE_FLIP_EXTS.begin(), SIMPLE_FLIP_EXTS.end(), ext) != SIMPLE_FLIP_EXTS.end() )
+	if (SIMPLE_FLIP_EXTS.find(ext) != SIMPLE_FLIP_EXTS.end())
 		singleByteFlip(FILE);
 
 	else
 		multyByteFlip(FILE, _filePath);
 
 	FILE.close();
+	return 0;
+}
+
+int Box::flipAllFiles() {
+	informer.beginJob("File flipping", -1);
+
+	for (auto entity: std::filesystem::recursive_directory_iterator(ROOT_PATH)) {
+		if (entity.is_regular_file() == false)
+			continue;
+
+		bool toSkip = false;
+		for (auto& p: entity.path()) {
+			if (ignores.find(p.string()) != ignores.end())
+				toSkip = true;
+		}
+
+		if (toSkip)
+			continue;
+
+		informer.progressJob("Flipping " + entity.path().string());
+		std::this_thread::sleep_for(std::chrono::milliseconds(2));
+		flipFile(entity.path());
+	}
+
+	informer.endJob();
 	return 0;
 }
 
