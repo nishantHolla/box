@@ -1,0 +1,20 @@
+
+CC=clang++
+CFLAGS=-std=c++17
+DEBUG_FLAGS=-O0 -g -Wall -Wextra -pedantic
+RELEASE_FLAGS=-O3
+
+SOURCE_DIR=source
+INCLUDE_DIR=${SOURCE_DIR}/include
+LIBRARY_DIR=${SOURCE_DIR}/library
+OUTPUT_DIR=output
+
+LIBRARIES=-lsisIO
+SOURCE=${SOURCE_DIR}/main.cpp ${SOURCE_DIR}/box.cpp
+OUTPUT=${OUTPUT_DIR}/box
+
+debug:
+	${CC} ${SOURCE} ${CFLAGS} ${DEBUG_FLAGS} -I${INCLUDE_DIR} -L${LIBRARY_DIR} ${LIBRARIES} -o${OUTPUT}
+
+release:
+	${CC} ${SOURCE} ${CFLAGS} ${RELEASE_FLAGS} -I${INCLUDE_DIR} -L${LIBRARY_DIR} ${LIBRARIES} -o${OUTPUT}
