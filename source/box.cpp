@@ -82,13 +82,7 @@ int Box::flipAllFiles() {
 		if (entity.is_regular_file() == false)
 			continue;
 
-		bool toSkip = false;
-		for (auto& p: entity.path()) {
-			if (ignores.find(p.string()) != ignores.end())
-				toSkip = true;
-		}
-
-		if (toSkip)
+		if (pathIsIgnored(entity.path()))
 			continue;
 
 		informer.progressJob("Flipping " + entity.path().string());

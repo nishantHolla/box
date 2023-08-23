@@ -26,7 +26,7 @@ void Box::Informer::progressJob(const std::string& _message) {
 		std::cout << ANSI_MOVE_UP << ANSI_CLEAR_LINE;
 
 	currentCount++;
-	std::string progressMeter = "";
+	std::string progressMeter = "...";
 	if (isUntargeted == false)
 		progressMeter = std::to_string(currentCount) + "/" + std::to_string(targetCount);
 

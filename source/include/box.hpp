@@ -55,6 +55,8 @@ private:
 
 	int flipPath(const std::filesystem::path& _path, const int _bias);
 
+	bool pathIsIgnored(const std::filesystem::path& _path);
+
 	SisIO io;
 	Informer informer;
 
