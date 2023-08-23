@@ -20,7 +20,7 @@
 #define FLIP_PATH_WRAP_BIAS 0
 
 #define ANSI_MOVE_UP "\033[A"
-#define ANSI_CLEAR_LINE "\33[2K"
+#define ANSI_CLEAR_LINE "\33[2K\r"
 
 class Box {
 private:
@@ -53,9 +53,11 @@ private:
 	void singleByteFlip(std::fstream& _stream);
 	void multyByteFlip(std::fstream& _stream, const std::filesystem::path& _filePath);
 
-	int flipPath(const std::filesystem::path& _path, const int _bias);
+	std::filesystem::path flipPath(const std::filesystem::path& _path, const int _bias);
 
 	bool pathIsIgnored(const std::filesystem::path& _path);
+	int flipAllPathsHelper(const std::filesystem::path& _directory);
+	int flipPathBias;
 
 	SisIO io;
 	Informer informer;
@@ -63,6 +65,7 @@ private:
 public:
 	Box(const std::filesystem::path& _rootPath);
 	int flipAllFiles();
+	int flipAllPaths();
 	~Box();
 };
 

@@ -7,6 +7,7 @@ Box::Box(const std::filesystem::path& _rootPath) :
 	ROOT_PATH (_rootPath),
 	SIMPLE_FLIP_EXTS {".jpg", ".png", ".mp4", ".mp3", ".mkv"},
 	ignores {".box", ".git"},
+	flipPathBias (FLIP_PATH_UNWRAP_BIAS),
 	io (LOG_FILE),
 	informer (&io)
 {
@@ -79,14 +80,16 @@ int Box::flipAllFiles() {
 	informer.beginJob("File flipping", -1);
 
 	for (auto entity: std::filesystem::recursive_directory_iterator(ROOT_PATH)) {
+		if (entity.is_symlink())
+			continue;
+
 		if (entity.is_regular_file() == false)
 			continue;
 
 		if (pathIsIgnored(entity.path()))
 			continue;
 
-		informer.progressJob("Flipping " + entity.path().string());
-		std::this_thread::sleep_for(std::chrono::milliseconds(2));
+		informer.progressJob("Flipping file " + entity.path().string());
 		flipFile(entity.path());
 	}
 
@@ -94,14 +97,14 @@ int Box::flipAllFiles() {
 	return 0;
 }
 
-int Box::flipPath(const std::filesystem::path& _path, const int _bias) {
+std::filesystem::path Box::flipPath(const std::filesystem::path& _path, const int _bias) {
 
 	if (std::filesystem::exists(_path) == false) {
 		io.log(SisIO::messageType::error,
 			"Could not flip non existent path " + _path.string(),
 			"flipPath method"
 		);
-		return 1;
+		return {};
 	}
 
 	const std::filesystem::path path = std::filesystem::canonical(_path);
@@ -127,8 +130,35 @@ int Box::flipPath(const std::filesystem::path& _path, const int _bias) {
 			newName += ((baseName[i] + key - 'a') % 26 + 'a');
 	}
 
-	std::cout << baseName << " -> " << newName;
+	const std::filesystem::path newPath = parentPath / newName;
+	std::filesystem::rename(path, newPath);
+	return newPath;
+}
 
+int Box::flipAllPathsHelper(const std::filesystem::path& _directory) {
+
+	for (auto entry: std::filesystem::directory_iterator(_directory)) {
+		if (entry.is_symlink())
+			continue;
+
+		if (pathIsIgnored(entry.path()))
+			continue;
+
+		informer.progressJob("Flipping path " + entry.path().string());
+
+		std::filesystem::path newPath = flipPath(entry.path(), flipPathBias);
+
+		if (entry.is_directory())
+			flipAllPathsHelper(newPath);
+
+	}
+	return 0;
+}
+
+int Box::flipAllPaths() {
+	informer.beginJob("Path flipping", -1);
+	flipAllPathsHelper(ROOT_PATH);
+	informer.endJob();
 	return 0;
 }
 

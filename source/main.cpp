@@ -5,6 +5,6 @@
 
 int main (int argc, char *argv[]) {
 	Box box ("./testSite");
-	box.flipAllFiles();
+	box.flipAllPaths();
 	return 0;
 }

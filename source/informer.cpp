@@ -22,9 +22,6 @@ void Box::Informer::beginJob(const std::string& _sectionName, const int _targetC
 }
 
 void Box::Informer::progressJob(const std::string& _message) {
-	if (currentCount != 0)
-		std::cout << ANSI_MOVE_UP << ANSI_CLEAR_LINE;
-
 	currentCount++;
 	std::string progressMeter = "...";
 	if (isUntargeted == false)
@@ -35,7 +32,6 @@ void Box::Informer::progressJob(const std::string& _message) {
 
 void Box::Informer::endJob() {
 	inJob = false;
-	std::cout << ANSI_MOVE_UP << ANSI_CLEAR_LINE;
 	io->output(SisIO::messageType::okay, "Finished job: " + sectionName);
 }
 
