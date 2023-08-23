@@ -2,8 +2,11 @@
 #include "box.hpp"
 
 Box::Box() :
-	io (".")
-{}
+	io (LOG_FILE)
+{
+	std::filesystem::remove(LOG_FILE);
+
+}
 
 Box::~Box()
 {}
