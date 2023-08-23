@@ -10,7 +10,7 @@ LIBRARY_DIR=${SOURCE_DIR}/library
 OUTPUT_DIR=output
 
 LIBRARIES=-lsisIO
-SOURCE=${SOURCE_DIR}/main.cpp ${SOURCE_DIR}/box.cpp
+SOURCE=${SOURCE_DIR}/main.cpp ${SOURCE_DIR}/box.cpp ${SOURCE_DIR}/informer.cpp
 OUTPUT=${OUTPUT_DIR}/box
 
 debug:

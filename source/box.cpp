@@ -5,7 +5,8 @@
 
 Box::Box() :
 	SIMPLE_FLIP_EXTS {".jpg", ".png", ".mp4", ".mp3", ".mkv"},
-	io (LOG_FILE)
+	io (LOG_FILE),
+	informer (&io)
 {
 	std::filesystem::remove(LOG_FILE);
 
