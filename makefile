@@ -9,12 +9,12 @@ INCLUDE_DIR=${SOURCE_DIR}/include
 LIBRARY_DIR=${SOURCE_DIR}/library
 OUTPUT_DIR=output
 
-LIBRARIES=-lsisIO
+LIBRARIES=
 SOURCE=\
 	${SOURCE_DIR}/main.cpp \
 	${SOURCE_DIR}/box.cpp \
-	${SOURCE_DIR}/informer.cpp \
-	${SOURCE_DIR}/checks.cpp
+	${SOURCE_DIR}/checks.cpp \
+	${SOURCE_DIR}/sisIO.cpp
 
 OUTPUT=${OUTPUT_DIR}/box
 

@@ -19,30 +19,11 @@
 #define FLIP_PATH_UNWRAP_BIAS 26
 #define FLIP_PATH_WRAP_BIAS 0
 
-#define ANSI_MOVE_UP "\033[A"
 #define ANSI_CLEAR_LINE "\33[2K\r"
+#define ANSI_MOVE_UP "\033[F"
 
 class Box {
 private:
-	class Informer {
-	public:
-		Informer(SisIO *_io);
-
-		void beginJob(const std::string& _sectionName, const int _targetCount);
-		void progressJob(const std::string& _message);
-		void endJob();
-
-		~Informer();
-	private:
-
-		SisIO *io;
-		int currentCount;
-		int targetCount;
-		bool inJob;
-		std::string sectionName;
-		bool isUntargeted;
-	};
-
 	const std::filesystem::path HOME_DIR = std::filesystem::path(std::getenv("HOME"));
 	const std::filesystem::path LOG_FILE = HOME_DIR / LOG_FILE_NAME;
 	const std::filesystem::path ROOT_PATH;
@@ -60,7 +41,6 @@ private:
 	int flipPathBias;
 
 	SisIO io;
-	Informer informer;
 
 public:
 	Box(const std::filesystem::path& _rootPath);

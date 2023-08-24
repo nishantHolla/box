@@ -8,8 +8,7 @@ Box::Box(const std::filesystem::path& _rootPath) :
 	SIMPLE_FLIP_EXTS {".jpg", ".png", ".mp4", ".mp3", ".mkv"},
 	ignores {".box", ".git"},
 	flipPathBias (FLIP_PATH_UNWRAP_BIAS),
-	io (LOG_FILE),
-	informer (&io)
+	io (LOG_FILE)
 {
 	std::filesystem::remove(LOG_FILE);
 }
@@ -77,23 +76,23 @@ int Box::flipFile(const std::filesystem::path& _filePath) {
 }
 
 int Box::flipAllFiles() {
-	informer.beginJob("File flipping", -1);
+	io.output(SisIO::messageType::info, "Started job: File flipping");
 
-	for (auto entity: std::filesystem::recursive_directory_iterator(ROOT_PATH)) {
-		if (entity.is_symlink())
+	for (auto entry: std::filesystem::recursive_directory_iterator(ROOT_PATH)) {
+		if (entry.is_symlink())
 			continue;
 
-		if (entity.is_regular_file() == false)
+		if (entry.is_regular_file() == false)
 			continue;
 
-		if (pathIsIgnored(entity.path()))
+		if (pathIsIgnored(entry.path()))
 			continue;
 
-		informer.progressJob("Flipping file " + entity.path().string());
-		flipFile(entity.path());
+		io.output(SisIO::messageType::info, "Flipping flie " + entry.path().string());
+		flipFile(entry.path());
 	}
 
-	informer.endJob();
+	io.output(SisIO::messageType::okay, "Finished job: File flipping");
 	return 0;
 }
 
@@ -136,7 +135,6 @@ std::filesystem::path Box::flipPath(const std::filesystem::path& _path, const in
 }
 
 int Box::flipAllPathsHelper(const std::filesystem::path& _directory) {
-
 	for (auto entry: std::filesystem::directory_iterator(_directory)) {
 		if (entry.is_symlink())
 			continue;
@@ -144,8 +142,7 @@ int Box::flipAllPathsHelper(const std::filesystem::path& _directory) {
 		if (pathIsIgnored(entry.path()))
 			continue;
 
-		informer.progressJob("Flipping path " + entry.path().string());
-
+		io.output(SisIO::messageType::info, "Flipping path " + entry.path().string());
 		std::filesystem::path newPath = flipPath(entry.path(), flipPathBias);
 
 		if (entry.is_directory())
@@ -156,9 +153,11 @@ int Box::flipAllPathsHelper(const std::filesystem::path& _directory) {
 }
 
 int Box::flipAllPaths() {
-	informer.beginJob("Path flipping", -1);
+	io.output(SisIO::messageType::info, "Started job: Path flipping");
+
 	flipAllPathsHelper(ROOT_PATH);
-	informer.endJob();
+
+	io.output(SisIO::messageType::okay, "Finished job: Path flipping");
 	return 0;
 }
 
