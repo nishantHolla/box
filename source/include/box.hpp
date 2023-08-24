@@ -27,25 +27,32 @@ private:
 	const std::filesystem::path HOME_DIR = std::filesystem::path(std::getenv("HOME"));
 	const std::filesystem::path LOG_FILE = HOME_DIR / LOG_FILE_NAME;
 	const std::filesystem::path ROOT_PATH;
-	const std::set<std::string> SIMPLE_FLIP_EXTS;
 	std::set<std::string> ignores;
 
-	int flipFile(const std::filesystem::path& _filePath);
-	void singleByteFlip(std::fstream& _stream);
-	void multyByteFlip(std::fstream& _stream, const std::filesystem::path& _filePath);
-
-	std::filesystem::path flipPath(const std::filesystem::path& _path, const int _bias);
+	// query
 
 	bool pathIsIgnored(const std::filesystem::path& _path);
-	int flipAllPathsHelper(const std::filesystem::path& _directory);
+
+	// file flipping
+
+	const std::set<std::string> SIMPLE_FLIP_EXTS;
+	void singleByteFlip(std::fstream& _stream);
+	void multyByteFlip(std::fstream& _stream, const std::filesystem::path& _filePath);
+	int flipFile(const std::filesystem::path& _filePath);
+	int flipAllFilesHelper(const std::filesystem::path& _path);
+	int flipAllFiles();
+
+	// path flipping
+
 	int flipPathBias;
+	std::filesystem::path flipPath(const std::filesystem::path& _path, const int _bias);
+	int flipAllPathsHelper(const std::filesystem::path& _directory);
+	int flipAllPaths();
 
 	SisIO io;
 
 public:
 	Box(const std::filesystem::path& _rootPath);
-	int flipAllFiles();
-	int flipAllPaths();
 	~Box();
 };
 

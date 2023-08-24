@@ -13,7 +13,9 @@ LIBRARIES=
 SOURCE=\
 	${SOURCE_DIR}/main.cpp \
 	${SOURCE_DIR}/box.cpp \
-	${SOURCE_DIR}/checks.cpp \
+	${SOURCE_DIR}/fileFlipping.cpp \
+	${SOURCE_DIR}/pathFlipping.cpp \
+	${SOURCE_DIR}/query.cpp \
 	${SOURCE_DIR}/sisIO.cpp
 
 OUTPUT=${OUTPUT_DIR}/box
