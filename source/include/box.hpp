@@ -43,6 +43,7 @@ private:
 
 	bool pathIsIgnored(const std::filesystem::path& _path);
 	std::filesystem::path pathIsValid(const std::filesystem::path& _path);
+	bool authenticateUser(const std::string& _PASSWORD_HASH);
 
 	// file flipping
 

@@ -54,6 +54,11 @@ int Box::wrap() {
 		return 2;
 	}
 
+	if (!authenticateUser(PASSWORD_HASH)) {
+		io.output(SisIO::messageType::error, "Too many failed attempts to authenticate. Terminating call.");
+		return 3;
+	}
+
 	flipAllFiles();
 	flipAllPaths();
 	isWrapped = true;
@@ -99,6 +104,11 @@ int Box::unwrap() {
 	if (!isWrapped) {
 		io.output(SisIO::messageType::warn, ROOT_PATH.string() + " is already unwrapped.");
 		return 2;
+	}
+
+	if (!authenticateUser(PASSWORD_HASH)) {
+		io.output(SisIO::messageType::error, "Too many failed attempts to authenticate. Terminating call.");
+		return 3;
 	}
 
 	flipAllPaths();
