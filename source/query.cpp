@@ -10,3 +10,10 @@ bool Box::pathIsIgnored(const std::filesystem::path& _path) {
 
 	return toSkip;
 }
+
+std::filesystem::path Box::pathIsValid(const std::filesystem::path& _path) {
+	if (std::filesystem::exists(_path))
+		return std::filesystem::canonical(_path);
+
+	return {};
+}

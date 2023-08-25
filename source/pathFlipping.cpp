@@ -1,7 +1,7 @@
 
 #include "box.hpp"
 
-std::filesystem::path Box::flipPath(const std::filesystem::path& _path, const int _bias) {
+std::filesystem::path Box::flipPath(const std::filesystem::path& _path) {
 
 	if (std::filesystem::exists(_path) == false) {
 		io.log(SisIO::messageType::error,
@@ -15,6 +15,7 @@ std::filesystem::path Box::flipPath(const std::filesystem::path& _path, const in
 	const std::filesystem::path parentPath = path.parent_path();
 	const std::string baseName = path.filename();
 	std::string newName = "";
+	const int bias = isWrapped ? 26 : 0;
 
 	for (int i=0, s=baseName.size(); i<s; i++) {
 		if (baseName[i] < 'A' || baseName[i] > 'z') {
@@ -26,7 +27,7 @@ std::filesystem::path Box::flipPath(const std::filesystem::path& _path, const in
 		if (i % 2 == 0)
 			key = FLIP_PATH_EVEN_KEY;
 
-		key = std::abs(key - _bias);
+		key = std::abs(key - bias);
 
 		if (baseName[i] >= 'A' && baseName[i] <= 'Z')
 			newName += ((baseName[i] + key - 'A') % 26 + 'A');
@@ -40,13 +41,6 @@ std::filesystem::path Box::flipPath(const std::filesystem::path& _path, const in
 }
 
 int Box::flipAllPathsHelper(const std::filesystem::path& _directory) {
-	if (flipPathBias < 0) {
-		io.log(SisIO::messageType::error,
-			"flipPathBias not set",
-			"flipAllPathsHelper method"
-		);
-		return 1;
-	}
 
 	for (auto entry: std::filesystem::directory_iterator(_directory)) {
 		if (entry.is_symlink())
@@ -56,7 +50,7 @@ int Box::flipAllPathsHelper(const std::filesystem::path& _directory) {
 			continue;
 
 		io.output(SisIO::messageType::info, "Flipping path " + entry.path().string());
-		std::filesystem::path newPath = flipPath(entry.path(), flipPathBias);
+		std::filesystem::path newPath = flipPath(entry.path());
 
 		if (entry.is_directory())
 			flipAllPathsHelper(newPath);

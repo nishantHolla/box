@@ -16,7 +16,8 @@ SOURCE=\
 	${SOURCE_DIR}/fileFlipping.cpp \
 	${SOURCE_DIR}/pathFlipping.cpp \
 	${SOURCE_DIR}/query.cpp \
-	${SOURCE_DIR}/sisIO.cpp
+	${SOURCE_DIR}/sisIO.cpp \
+	${SOURCE_DIR}/sisAuth.cpp
 
 OUTPUT=${OUTPUT_DIR}/box
 

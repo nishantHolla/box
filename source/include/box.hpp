@@ -9,6 +9,7 @@
 #include <set>
 
 #include "sisIO.hpp"
+#include "sisAuth.hpp"
 
 #define LOG_FILE_NAME "boxLog.txt"
 
@@ -24,14 +25,24 @@
 
 class Box {
 private:
+
+	// box properties
+
 	const std::filesystem::path HOME_DIR = std::filesystem::path(std::getenv("HOME"));
 	const std::filesystem::path LOG_FILE = HOME_DIR / LOG_FILE_NAME;
 	const std::filesystem::path ROOT_PATH;
+	const std::filesystem::path BOX_PATH;
+	const std::filesystem::path BOX_CONFIG_FILE;
 	std::set<std::string> ignores;
+
+	bool isWrapped;
+	bool isBoxxed;
+	std::string PASSWORD_HASH;
 
 	// query
 
 	bool pathIsIgnored(const std::filesystem::path& _path);
+	std::filesystem::path pathIsValid(const std::filesystem::path& _path);
 
 	// file flipping
 
@@ -44,15 +55,18 @@ private:
 
 	// path flipping
 
-	int flipPathBias;
-	std::filesystem::path flipPath(const std::filesystem::path& _path, const int _bias);
+	std::filesystem::path flipPath(const std::filesystem::path& _path);
 	int flipAllPathsHelper(const std::filesystem::path& _directory);
 	int flipAllPaths();
 
 	SisIO io;
+	SisAuth auth;
 
 public:
 	Box(const std::filesystem::path& _rootPath);
+	int wrap();
+	int create();
+	int unwrap();
 	~Box();
 };
 
