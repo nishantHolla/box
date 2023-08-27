@@ -5,9 +5,9 @@
 
 Box::Box(const std::filesystem::path& _rootPath) :
 	ROOT_PATH (pathIsValid(_rootPath)),
-	BOX_PATH (_rootPath / ".box"),
+	BOX_PATH (_rootPath / BOX_DIR),
 	BOX_CONFIG_FILE (BOX_PATH / "config"),
-	ignores {".box", ".git"},
+	ignores {BOX_DIR, ".git"},
 	SIMPLE_FLIP_EXTS {".jpg", ".png", ".mp4", ".mp3", ".mkv"},
 	io (LOG_FILE),
 	auth ()
@@ -70,6 +70,12 @@ int Box::create() {
 		io.output(SisIO::messageType::error, ROOT_PATH.string() + " is already boxxed.");
 		return 1;
 	}
+	
+	const std::filesystem::path boxPathValidation = validBoxPath(ROOT_PATH);
+	if (boxPathValidation.empty() == false) {
+		io.output(SisIO::messageType::error, boxPathValidation.string() + " is already boxxed.");
+		return 2;
+	}
 
 	const std::string PASSWORD = io.input<std::string>("Enter a password for the box: ");
 	const std::string pHash = auth.generateHash(PASSWORD);
@@ -79,7 +85,7 @@ int Box::create() {
 	std::fstream CONFIG_FILE (BOX_CONFIG_FILE, std::ios::out);
 	if (!CONFIG_FILE) {
 		io.log(SisIO::messageType::error, "Failed to create box config file at " + BOX_PATH.string(), "box create method");
-		return 2;
+		return 3;
 	}
 
 	CONFIG_FILE << "password " << pHash << "\n";

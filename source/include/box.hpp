@@ -12,6 +12,7 @@
 #include "sisAuth.hpp"
 
 #define LOG_FILE_NAME "boxLog.txt"
+#define BOX_DIR ".box"
 
 #define FLIP_FILE_KEY 128
 
@@ -44,6 +45,7 @@ private:
 	bool pathIsIgnored(const std::filesystem::path& _path);
 	std::filesystem::path pathIsValid(const std::filesystem::path& _path);
 	bool authenticateUser(const std::string& _PASSWORD_HASH);
+	std::filesystem::path validBoxPath(const std::filesystem::path& _path);
 
 	// file flipping
 

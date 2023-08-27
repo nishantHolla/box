@@ -28,6 +28,8 @@ int main (int argc, char *argv[]) {
 	else if (ACTION == "unwrap")
 		exitCode = box.unwrap();
 
+	else if (ACTION == "index")
+		exitCode = box.index();
 
 	return exitCode;
 }
