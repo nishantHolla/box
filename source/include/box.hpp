@@ -54,6 +54,13 @@ private:
 	int flipAllFilesHelper(const std::filesystem::path& _path);
 	int flipAllFiles();
 
+	// file indexing
+
+	const std::string getFileHash(const std::filesystem::path& _filePath);
+	std::filesystem::path indexFile(const std::filesystem::path& _filePath);
+	int indexAllFilesHelper(const std::filesystem::path& _path);
+	int indexAllFiles();
+
 	// path flipping
 
 	std::filesystem::path flipPath(const std::filesystem::path& _path);
@@ -68,6 +75,7 @@ public:
 	int wrap();
 	int create();
 	int unwrap();
+	int index();
 	~Box();
 };
 

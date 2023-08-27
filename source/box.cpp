@@ -12,7 +12,6 @@ Box::Box(const std::filesystem::path& _rootPath) :
 	io (LOG_FILE),
 	auth ()
 {
-	// remove previous log file if exists.
 	std::filesystem::remove(LOG_FILE);
 
 	if (ROOT_PATH.empty()) {
@@ -114,6 +113,28 @@ int Box::unwrap() {
 	flipAllPaths();
 	flipAllFiles();
 	isWrapped = false;
+
+	return 0;
+}
+
+int Box::index() {
+	if (!isBoxxed) {
+		io.output(SisIO::messageType::error, "Can not index unboxxed dir " + ROOT_PATH.string());
+		return 1;
+	}
+
+	if (isWrapped) {
+		io.output(SisIO::messageType::warn, "Can not index wrapped box " + ROOT_PATH.string());
+		return 2;
+	}
+
+	if (!authenticateUser(PASSWORD_HASH)) {
+		io.output(SisIO::messageType::error, "Too many failed attempts to authenticate. Terminating call.");
+		return 3;
+	}
+
+
+	indexAllFiles();
 
 	return 0;
 }

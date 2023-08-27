@@ -15,6 +15,7 @@ SOURCE=\
 	${SOURCE_DIR}/box.cpp \
 	${SOURCE_DIR}/fileFlipping.cpp \
 	${SOURCE_DIR}/pathFlipping.cpp \
+	${SOURCE_DIR}/indexing.cpp \
 	${SOURCE_DIR}/query.cpp \
 	${SOURCE_DIR}/sisIO.cpp \
 	${SOURCE_DIR}/sisAuth.cpp
