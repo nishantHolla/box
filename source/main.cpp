@@ -31,6 +31,12 @@ int main (int argc, char *argv[]) {
 	else if (ACTION == "index")
 		exitCode = box.index();
 
+	else if (ACTION == "addTag")
+		exitCode = box.addTag(TARGET);
+
+	else if (ACTION == "removeTag")
+		exitCode = box.removeTag(TARGET);
+
 	return exitCode;
 }
 

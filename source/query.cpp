@@ -22,7 +22,7 @@ std::filesystem::path Box::validBoxPath(const std::filesystem::path& _path) {
 	std::filesystem::path p = _path;
 	while (p.string() != "/") {
 		if (std::filesystem::is_directory(p / BOX_DIR))
-			return p;
+			return std::filesystem::canonical(_path);
 
 		p = p.parent_path();
 	}

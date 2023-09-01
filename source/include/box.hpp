@@ -35,6 +35,7 @@ private:
 	const std::filesystem::path BOX_PATH;
 	const std::filesystem::path BOX_CONFIG_FILE;
 	std::set<std::string> ignores;
+	void prepareTagList(const std::string& _tagString);
 
 	bool isWrapped;
 	bool isBoxxed;
@@ -69,6 +70,11 @@ private:
 	int flipAllPathsHelper(const std::filesystem::path& _directory);
 	int flipAllPaths();
 
+	// tags
+
+	std::vector<std::string> parseTags(const std::filesystem::path& _path);
+	std::string joinTags(const std::vector<std::string>& _tags);
+
 	SisIO io;
 	SisAuth auth;
 
@@ -78,7 +84,10 @@ public:
 	int create();
 	int unwrap();
 	int index();
+	int addTag(const std::filesystem::path& _path);
+	int removeTag(const std::filesystem::path& _path);
 	~Box();
+	std::vector<std::string> tagList;
 };
 
 #endif // !BOX_H_

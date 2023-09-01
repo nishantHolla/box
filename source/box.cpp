@@ -2,9 +2,10 @@
 #include "box.hpp"
 #include <fstream>
 #include <cmath>
+#include <vector>
 
 Box::Box(const std::filesystem::path& _rootPath) :
-	ROOT_PATH (pathIsValid(_rootPath)),
+	ROOT_PATH (validBoxPath(_rootPath)),
 	BOX_PATH (_rootPath / BOX_DIR),
 	BOX_CONFIG_FILE (BOX_PATH / "config"),
 	ignores {BOX_DIR, ".git"},
@@ -31,15 +32,33 @@ Box::Box(const std::filesystem::path& _rootPath) :
 		std::string passwordHashResult;
 		std::string isWrappedTitle;
 		std::string isWrappedResult;
+		std::string tagsTitle;
 
-		CONFIG_FILE >> passwordHashTitle >> passwordHashResult;
-		CONFIG_FILE >> isWrappedTitle >> isWrappedResult;
+		for (int i=0; i<3; i++) {
+			std::string KEY;
+			std::string VALUE;
+			CONFIG_FILE >> KEY >> VALUE;
 
-		isWrapped = (isWrappedResult == "true");
-		PASSWORD_HASH = passwordHashResult;
+			if (KEY == "password")
+				PASSWORD_HASH = VALUE;
+			else if (KEY == "isWrapped")
+				isWrapped = (VALUE == "true");
+			else if (KEY == "tags") {
+				prepareTagList(VALUE);
+			}
+		}
 	}
 
 	io.outputLevel = SisIO::messageType::prompt;
+}
+
+void Box::prepareTagList(const std::string& _tagString) {
+	std::stringstream ss(_tagString);
+	std::string tmp;
+
+	while(std::getline(ss, tmp, ',')){
+		tagList.push_back(tmp);
+	}
 }
 
 int Box::wrap() {
@@ -145,6 +164,7 @@ int Box::index() {
 	return 0;
 }
 
+
 Box::~Box()
 {
 	if (!isBoxxed)
@@ -156,9 +176,14 @@ Box::~Box()
 		return;
 	}
 
+	std::string tagString = "";
+	for (auto e: tagList)
+		tagString += (e + ",");
+
 	const std::string isWrappedString = isWrapped ? "true" : "false";
 	CONFIG_FILE << "password " << PASSWORD_HASH << "\n";
 	CONFIG_FILE << "isWrapped " << isWrappedString << "\n";
+	CONFIG_FILE << "tags " << tagString << "\n";
 
 	CONFIG_FILE.close();
 }

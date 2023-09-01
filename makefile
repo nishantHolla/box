@@ -17,6 +17,7 @@ SOURCE=\
 	${SOURCE_DIR}/pathFlipping.cpp \
 	${SOURCE_DIR}/indexing.cpp \
 	${SOURCE_DIR}/query.cpp \
+	${SOURCE_DIR}/tags.cpp \
 	${SOURCE_DIR}/sisIO.cpp \
 	${SOURCE_DIR}/sisAuth.cpp
 

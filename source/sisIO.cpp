@@ -64,6 +64,26 @@ std::string SisIO::inputLine(const std::string& _message) {
 	return result;
 }
 
+std::string SisIO::inputFromSelection(const std::string& _message, const std::vector<std::string>& _options) {
+	output(messageType::prompt, _message);
+	bool temp = tagMessages;
+	tagMessages = false;
+
+	for (int i=0, s=_options.size(); i<s; i++)
+		output(messageType::none, std::to_string(i+1) + ". " + _options[i]);
+
+	int selectionIndex = -1;
+	int size = _options.size();
+	while (true) {
+		std::cout << "> ";
+		std::cin >> selectionIndex;
+		selectionIndex--;
+		if (selectionIndex > -1 && selectionIndex < size)
+			break;
+	}
+	tagMessages = temp;
+	return _options[selectionIndex];
+}
 
 int SisIO::log(messageType _messageType, const std::string& _message, const std::string _sender) {
 
