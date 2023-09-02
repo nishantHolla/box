@@ -5,8 +5,8 @@
 #include <vector>
 
 Box::Box(const std::filesystem::path& _rootPath) :
-	ROOT_PATH (validBoxPath(_rootPath)),
-	BOX_PATH (_rootPath / BOX_DIR),
+	ROOT_PATH (validateBoxPath(_rootPath)),
+	BOX_PATH (ROOT_PATH / BOX_DIR),
 	BOX_CONFIG_FILE (BOX_PATH / "config"),
 	ignores {BOX_DIR, ".git"},
 	SIMPLE_FLIP_EXTS {".jpg", ".png", ".mp4", ".mp3", ".mkv"},
@@ -90,7 +90,7 @@ int Box::create() {
 		return 1;
 	}
 	
-	const std::filesystem::path boxPathValidation = validBoxPath(ROOT_PATH);
+	const std::filesystem::path boxPathValidation = validateBoxPath(ROOT_PATH);
 	if (boxPathValidation.empty() == false) {
 		io.output(SisIO::messageType::error, boxPathValidation.string() + " is already boxxed.");
 		return 2;

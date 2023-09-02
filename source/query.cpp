@@ -11,20 +11,19 @@ bool Box::pathIsIgnored(const std::filesystem::path& _path) {
 	return toSkip;
 }
 
-std::filesystem::path Box::pathIsValid(const std::filesystem::path& _path) {
-	if (std::filesystem::exists(_path))
-		return std::filesystem::canonical(_path);
+std::filesystem::path Box::validateBoxPath(const std::filesystem::path& _path) {
+	std::filesystem::path searchPath = _path;
 
-	return {};
-}
+	if (std::filesystem::exists(searchPath) == false)
+		return {};
+	else
+		searchPath = std::filesystem::canonical(searchPath);
 
-std::filesystem::path Box::validBoxPath(const std::filesystem::path& _path) {
-	std::filesystem::path p = _path;
-	while (p.string() != "/") {
-		if (std::filesystem::is_directory(p / BOX_DIR))
-			return std::filesystem::canonical(_path);
+	while (searchPath.string() != "/") {
+		if (std::filesystem::is_directory(searchPath / BOX_DIR))
+			return searchPath;
 
-		p = p.parent_path();
+		searchPath = searchPath.parent_path();
 	}
 
 	return {};

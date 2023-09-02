@@ -44,9 +44,8 @@ private:
 	// query
 
 	bool pathIsIgnored(const std::filesystem::path& _path);
-	std::filesystem::path pathIsValid(const std::filesystem::path& _path);
 	bool authenticateUser(const std::string& _PASSWORD_HASH);
-	std::filesystem::path validBoxPath(const std::filesystem::path& _path);
+	std::filesystem::path validateBoxPath(const std::filesystem::path& _path);
 
 	// file flipping
 
