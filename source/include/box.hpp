@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <vector>
 #include <set>
+#include <exception>
 
 #include "sisIO.hpp"
 #include "sisAuth.hpp"
@@ -76,6 +77,20 @@ private:
 
 	SisIO io;
 	SisAuth auth;
+
+	// exceptions
+
+	class pathNotFoundException : public std::exception {
+		public:
+			pathNotFoundException (const std::filesystem::path& _path) :
+				PATH (_path)
+			{ }
+			const std::filesystem::path PATH;
+
+			std::string what() {
+				return ("Could not find " + PATH.string());
+			}
+	};
 
 public:
 	Box(const std::filesystem::path& _rootPath);

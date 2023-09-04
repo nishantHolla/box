@@ -15,7 +15,7 @@ std::filesystem::path Box::validateBoxPath(const std::filesystem::path& _path) {
 	std::filesystem::path searchPath = _path;
 
 	if (std::filesystem::exists(searchPath) == false)
-		return {};
+		throw pathNotFoundException(_path);
 	else
 		searchPath = std::filesystem::canonical(searchPath);
 
