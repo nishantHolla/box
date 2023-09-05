@@ -40,6 +40,7 @@ private:
 
 	bool isWrapped;
 	bool isBoxxed;
+	bool isSubBoxxed;
 	std::string PASSWORD_HASH;
 
 	// query

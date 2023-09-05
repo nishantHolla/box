@@ -5,6 +5,7 @@
 #include <vector>
 
 Box::Box(const std::filesystem::path& _rootPath) :
+	isSubBoxxed (false),
 	ROOT_PATH (validateBoxPath(_rootPath)),
 	BOX_PATH (ROOT_PATH / BOX_DIR),
 	BOX_CONFIG_FILE (BOX_PATH / "config"),
@@ -15,10 +16,10 @@ Box::Box(const std::filesystem::path& _rootPath) :
 {
 	std::filesystem::remove(LOG_FILE);
 
-	if (ROOT_PATH.empty()) {
-		io.output(SisIO::messageType::error, "Invalid root " + _rootPath.string());
-		std::exit(1);
-	}
+	// if (ROOT_PATH.empty()) {
+	// 	io.output(SisIO::messageType::error, "Invalid root " + _rootPath.string());
+	// 	std::exit(1);
+	// }
 
 	isBoxxed = std::filesystem::is_directory(BOX_PATH);
 	if (isBoxxed) {
@@ -52,15 +53,6 @@ Box::Box(const std::filesystem::path& _rootPath) :
 	io.outputLevel = SisIO::messageType::prompt;
 }
 
-void Box::prepareTagList(const std::string& _tagString) {
-	std::stringstream ss(_tagString);
-	std::string tmp;
-
-	while(std::getline(ss, tmp, ',')){
-		tagList.push_back(tmp);
-	}
-}
-
 int Box::wrap() {
 	if (!isBoxxed) {
 		io.output(SisIO::messageType::error, ROOT_PATH.string() + " is not boxxed.");
@@ -90,9 +82,8 @@ int Box::create() {
 		return 1;
 	}
 	
-	const std::filesystem::path boxPathValidation = validateBoxPath(ROOT_PATH);
-	if (boxPathValidation.empty() == false) {
-		io.output(SisIO::messageType::error, boxPathValidation.string() + " is already boxxed.");
+	if (isSubBoxxed) {
+		io.output(SisIO::messageType::error, ROOT_PATH.string() + " is already boxxed. Can not have sub boxes.");
 		return 2;
 	}
 

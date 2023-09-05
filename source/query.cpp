@@ -16,17 +16,19 @@ std::filesystem::path Box::validateBoxPath(const std::filesystem::path& _path) {
 
 	if (std::filesystem::exists(searchPath) == false)
 		throw pathNotFoundException(_path);
+
 	else
 		searchPath = std::filesystem::canonical(searchPath);
 
-	while (searchPath.string() != "/") {
+	while (searchPath != std::filesystem::path("/home")) {
 		if (std::filesystem::is_directory(searchPath / BOX_DIR))
 			return searchPath;
 
 		searchPath = searchPath.parent_path();
 	}
 
-	return {};
+	isSubBoxxed = true;
+	return std::filesystem::canonical(_path);
 }
 
 bool Box::authenticateUser(const std::string& _PASSWORD_HASH) {

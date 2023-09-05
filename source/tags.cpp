@@ -1,7 +1,26 @@
 
 #include "box.hpp"
 
+void Box::prepareTagList(const std::string& _tagString) {
+	std::stringstream ss(_tagString);
+	std::string tmp;
+
+	while(std::getline(ss, tmp, ',')){
+		tagList.push_back(tmp);
+	}
+}
+
 int Box::addTag(const std::filesystem::path& _path) {
+
+	if (!isBoxxed) {
+		io.output(SisIO::messageType::error, ROOT_PATH.string() + " is not boxxed.");
+		return 1;
+	}
+
+	if (isWrapped) {
+		io.output(SisIO::messageType::warn, ROOT_PATH.string() + " is wrapped. Unwrap it to add tags");
+		return 2;
+	}
 
 	std::filesystem::path filePath = _path;
 	if (std::filesystem::exists(_path) == false || std::filesystem::is_regular_file(_path) == false)
@@ -22,6 +41,16 @@ int Box::addTag(const std::filesystem::path& _path) {
 }
 
 int Box::removeTag(const std::filesystem::path& _path) {
+
+	if (!isBoxxed) {
+		io.output(SisIO::messageType::error, ROOT_PATH.string() + " is not boxxed.");
+		return 1;
+	}
+
+	if (isWrapped) {
+		io.output(SisIO::messageType::warn, ROOT_PATH.string() + " is wrapped. Unwrap it to remove tags");
+		return 2;
+	}
 
 	std::filesystem::path filePath = _path;
 	if (std::filesystem::exists(_path) == false || std::filesystem::is_regular_file(_path) == false)
