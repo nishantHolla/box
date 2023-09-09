@@ -8,7 +8,7 @@ const std::string Box::getFileHash(const std::filesystem::path& _filePath) {
 	if (std::filesystem::is_regular_file(_filePath) == false)
 		return "fffff";
 
-	const std::string COMMAND = "openssl sha256 " + _filePath.string() + " | awk '{print $NF}'";
+	const std::string COMMAND = "openssl sha256 \"" + _filePath.string() + "\" | awk '{print $NF}'";
 	FILE *process = popen(COMMAND.c_str(), "r");
 	if (!process)
 		return "fffff";
