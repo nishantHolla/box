@@ -8,7 +8,14 @@ std::string shiftArgs(int *_argc, char **_argv[]);
 int main (int argc, char *argv[]) {
 
 	if (argc < 3) {
-		std::cout << "Usage: <program_name> <action> <box_root_path>";
+		std::cout << "Usage: <program_name> <action> <box_root_path>\n";
+		std::cout << "    Actions:\n";
+		std::cout << "        create: create a new box in an unboxed directory.\n";
+		std::cout << "        wrap: encrypt a box.\n";
+		std::cout << "        unwrap: decrypt a box.\n";
+		std::cout << "        index: index the box.\n";
+		std::cout << "        addTag: add a tag to a file.\n";
+		std::cout << "        removeTag: remove a tag from a file.\n";
 		return 1;
 	}
 
