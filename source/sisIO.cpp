@@ -1,106 +1,104 @@
 
 #include "sisIO.hpp"
 
-SisIO::SisIO(std::string _logFilePath) :
-	logFilePath (_logFilePath),
-	logLevel (messageType::none),
-	outputLevel (messageType::none),
-	colorMessages (true),
-	tagMessages (true),
-	colorReset ("\u001b[0m")
-{
+SisIO::SisIO(std::string _logFilePath)
+    : logFilePath(_logFilePath), logLevel(messageType::none),
+      outputLevel(messageType::none), colorMessages(true), tagMessages(true),
+      colorReset("\u001b[0m") {
 
-	messageTypeToColor[messageType::prompt] = messageColor::blue;
-	messageTypeToColor[messageType::none] = messageColor::white;
-	messageTypeToColor[messageType::okay] = messageColor::green;
-	messageTypeToColor[messageType::info] = messageColor::cyan;
-	messageTypeToColor[messageType::warn] = messageColor::yellow;
-	messageTypeToColor[messageType::error] = messageColor::red;
+    messageTypeToColor[messageType::prompt] = messageColor::blue;
+    messageTypeToColor[messageType::none] = messageColor::white;
+    messageTypeToColor[messageType::okay] = messageColor::green;
+    messageTypeToColor[messageType::info] = messageColor::cyan;
+    messageTypeToColor[messageType::warn] = messageColor::yellow;
+    messageTypeToColor[messageType::error] = messageColor::red;
 
-	messageTypeToTag[messageType::prompt] = " [INPT] ";
-	messageTypeToTag[messageType::none] = "  ";
-	messageTypeToTag[messageType::okay] = " [OKAY] ";
-	messageTypeToTag[messageType::info] = " [INFO] ";
-	messageTypeToTag[messageType::warn] = " [WARN] ";
-	messageTypeToTag[messageType::error] = " [ERRR] ";
+    messageTypeToTag[messageType::prompt] = " [INPT] ";
+    messageTypeToTag[messageType::none] = "  ";
+    messageTypeToTag[messageType::okay] = " [OKAY] ";
+    messageTypeToTag[messageType::info] = " [INFO] ";
+    messageTypeToTag[messageType::warn] = " [WARN] ";
+    messageTypeToTag[messageType::error] = " [ERRR] ";
 
-	colorToAnsiCode[messageColor::blue] = "\u001b[34;1m";
-	colorToAnsiCode[messageColor::white] = "\u001b[37;1m";
-	colorToAnsiCode[messageColor::green] = "\u001b[32;1m";
-	colorToAnsiCode[messageColor::cyan] = "\u001b[36;1m";
-	colorToAnsiCode[messageColor::yellow] = "\u001b[33;1m";
-	colorToAnsiCode[messageColor::red] = "\u001b[31;1m";
-
+    colorToAnsiCode[messageColor::blue] = "\u001b[34;1m";
+    colorToAnsiCode[messageColor::white] = "\u001b[37;1m";
+    colorToAnsiCode[messageColor::green] = "\u001b[32;1m";
+    colorToAnsiCode[messageColor::cyan] = "\u001b[36;1m";
+    colorToAnsiCode[messageColor::yellow] = "\u001b[33;1m";
+    colorToAnsiCode[messageColor::red] = "\u001b[31;1m";
 }
 
-int SisIO::output(messageType _messageType, const std::string& _message, bool _endline) {
+int SisIO::output(messageType _messageType, const std::string &_message,
+                  bool _endline) {
 
-	if (_messageType < outputLevel)
-		return 1;
+    if (_messageType < outputLevel)
+        return 1;
 
-	if (colorMessages)
-		std::cout << colorToAnsiCode[messageTypeToColor[_messageType]];
+    if (colorMessages)
+        std::cout << colorToAnsiCode[messageTypeToColor[_messageType]];
 
-	if (tagMessages)
-		std::cout << messageTypeToTag[_messageType];
+    if (tagMessages)
+        std::cout << messageTypeToTag[_messageType];
 
-	std::cout << _message;
+    std::cout << _message;
 
-	if (colorMessages)
-		std::cout << colorReset;
+    if (colorMessages)
+        std::cout << colorReset;
 
-	if (_endline)
-		std::cout << std::endl;
+    if (_endline)
+        std::cout << std::endl;
 
-	std::cout << std::flush;
-	return 0;
+    std::cout << std::flush;
+    return 0;
 }
 
-std::string SisIO::inputLine(const std::string& _message) {
-	output(messageType::prompt, _message, false);
-	std::cin >> std::ws;
-	std::string result;
-	std::getline(std::cin, result);
-	return result;
+std::string SisIO::inputLine(const std::string &_message) {
+    output(messageType::prompt, _message, false);
+    std::cin >> std::ws;
+    std::string result;
+    std::getline(std::cin, result);
+    return result;
 }
 
-std::string SisIO::inputFromSelection(const std::string& _message, const std::vector<std::string>& _options) {
-	output(messageType::prompt, _message);
-	bool temp = tagMessages;
-	tagMessages = false;
+std::string
+SisIO::inputFromSelection(const std::string &_message,
+                          const std::vector<std::string> &_options) {
+    output(messageType::prompt, _message);
+    bool temp = tagMessages;
+    tagMessages = false;
 
-	for (int i=0, s=_options.size(); i<s; i++)
-		output(messageType::none, std::to_string(i+1) + ". " + _options[i]);
+    for (int i = 0, s = _options.size(); i < s; i++)
+        output(messageType::none, std::to_string(i + 1) + ". " + _options[i]);
 
-	int selectionIndex = -1;
-	int size = _options.size();
-	while (true) {
-		std::cout << "> ";
-		std::cin >> selectionIndex;
-		selectionIndex--;
-		if (selectionIndex > -1 && selectionIndex < size)
-			break;
-	}
-	tagMessages = temp;
-	return _options[selectionIndex];
+    int selectionIndex = -1;
+    int size = _options.size();
+    while (true) {
+        std::cout << "> ";
+        std::cin >> selectionIndex;
+        selectionIndex--;
+        if (selectionIndex > -1 && selectionIndex < size)
+            break;
+    }
+    tagMessages = temp;
+    return _options[selectionIndex];
 }
 
-int SisIO::log(messageType _messageType, const std::string& _message, const std::string _sender) {
+int SisIO::log(messageType _messageType, const std::string &_message,
+               const std::string _sender) {
 
-	if (_messageType < logLevel)
-		return 1;
+    if (_messageType < logLevel)
+        return 1;
 
-	std::fstream logFile (logFilePath, std::ios::app);
-	if (logFile.good() == false)
-		return 2;
+    std::fstream logFile(logFilePath, std::ios::app);
+    if (logFile.good() == false)
+        return 2;
 
-	logFile <<
-		"\nFrom: " << _sender <<
-		"\nType: " << messageTypeToTag[_messageType] <<
-		"\nMessage: " << _message << "\n";
+    logFile << "\nFrom: " << _sender
+            << "\nType: " << messageTypeToTag[_messageType]
+            << "\nMessage: " << _message << "\n";
 
-	logFile.close();
-	return 0;
+    logFile.close();
+    return 0;
 }
 
-SisIO::~SisIO() {};
+SisIO::~SisIO(){};
