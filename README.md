@@ -1,6 +1,6 @@
 # box
 
-A simple CLI software for filesystem encryption.
+A simple CLI software for filesystem encryption using XOR encryption.
 
 # Usage (for linux)
 
@@ -40,3 +40,7 @@ box wrap .
 ```
 box unwrap .
 ```
+
+# :warning: Warning
+
+This project is meant for educational purpose only. Do not use this to encrypt any personal or sensitive data.
