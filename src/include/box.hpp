@@ -3,6 +3,7 @@
 #define BOX_H_
 
 #include <bits/stdc++.h>
+
 #include <cstdlib>
 #include <exception>
 #include <filesystem>
@@ -26,81 +27,80 @@
 #define ANSI_MOVE_UP "\033[F"
 
 class Box {
-private:
-    // box properties
+ private:
+  // box properties
 
-    const std::filesystem::path HOME_DIR =
-        std::filesystem::path(std::getenv("HOME"));
-    const std::filesystem::path LOG_FILE = HOME_DIR / LOG_FILE_NAME;
-    const std::filesystem::path ROOT_PATH;
-    const std::filesystem::path BOX_PATH;
-    const std::filesystem::path BOX_CONFIG_FILE;
-    std::set<std::string> ignores;
-    void prepareTagList(const std::string &_tagString);
+  const std::filesystem::path HOME_DIR =
+      std::filesystem::path(std::getenv("HOME"));
+  const std::filesystem::path LOG_FILE = HOME_DIR / LOG_FILE_NAME;
+  const std::filesystem::path ROOT_PATH;
+  const std::filesystem::path BOX_PATH;
+  const std::filesystem::path BOX_CONFIG_FILE;
+  std::set<std::string> ignores;
+  void prepareTagList(const std::string &_tagString);
 
-    bool isWrapped;
-    bool isBoxxed;
-    bool isSubBoxxed;
-    std::string PASSWORD_HASH;
+  bool isWrapped;
+  bool isBoxxed;
+  bool isSubBoxxed;
+  std::string PASSWORD_HASH;
 
-    // query
+  // query
 
-    bool pathIsIgnored(const std::filesystem::path &_path);
-    bool authenticateUser(const std::string &_PASSWORD_HASH);
-    std::filesystem::path validateBoxPath(const std::filesystem::path &_path);
+  bool pathIsIgnored(const std::filesystem::path &_path);
+  bool authenticateUser(const std::string &_PASSWORD_HASH);
+  std::filesystem::path validateBoxPath(const std::filesystem::path &_path);
 
-    // file flipping
+  // file flipping
 
-    const std::set<std::string> SIMPLE_FLIP_EXTS;
-    void singleByteFlip(std::fstream &_stream);
-    void multyByteFlip(std::fstream &_stream,
-                       const std::filesystem::path &_filePath);
-    int flipFile(const std::filesystem::path &_filePath);
-    int flipAllFilesHelper(const std::filesystem::path &_path);
-    int flipAllFiles();
+  const std::set<std::string> SIMPLE_FLIP_EXTS;
+  void singleByteFlip(std::fstream &_stream);
+  void multyByteFlip(std::fstream &_stream,
+                     const std::filesystem::path &_filePath);
+  int flipFile(const std::filesystem::path &_filePath);
+  int flipAllFilesHelper(const std::filesystem::path &_path);
+  int flipAllFiles();
 
-    // file indexing
+  // file indexing
 
-    const std::string getFileHash(const std::filesystem::path &_filePath);
-    std::filesystem::path indexFile(const std::filesystem::path &_filePath);
-    int indexAllFilesHelper(const std::filesystem::path &_path);
-    int indexAllFiles();
+  const std::string getFileHash(const std::filesystem::path &_filePath);
+  std::filesystem::path indexFile(const std::filesystem::path &_filePath);
+  int indexAllFilesHelper(const std::filesystem::path &_path);
+  int indexAllFiles();
 
-    // path flipping
+  // path flipping
 
-    std::filesystem::path flipPath(const std::filesystem::path &_path);
-    int flipAllPathsHelper(const std::filesystem::path &_directory);
-    int flipAllPaths();
+  std::filesystem::path flipPath(const std::filesystem::path &_path);
+  int flipAllPathsHelper(const std::filesystem::path &_directory);
+  int flipAllPaths();
 
-    // tags
+  // tags
 
-    std::vector<std::string> parseTags(const std::filesystem::path &_path);
-    std::string joinTags(const std::vector<std::string> &_tags);
+  std::vector<std::string> parseTags(const std::filesystem::path &_path);
+  std::string joinTags(const std::vector<std::string> &_tags);
 
-    SisIO io;
-    SisAuth auth;
+  SisIO io;
+  SisAuth auth;
 
-    // exceptions
+  // exceptions
 
-    class pathNotFoundException : public std::exception {
-    public:
-        pathNotFoundException(const std::filesystem::path &_path)
-            : PATH(_path) {}
-        const std::filesystem::path PATH;
+  class pathNotFoundException : public std::exception {
+   public:
+    pathNotFoundException(const std::filesystem::path &_path) : PATH(_path) {}
+    const std::filesystem::path PATH;
 
-        std::string what() { return ("Could not find " + PATH.string()); }
-    };
+    std::string what() { return ("Could not find " + PATH.string()); }
+  };
 
-public:
-    Box(const std::filesystem::path &_rootPath);
-    int wrap();
-    int create();
-    int unwrap();
-    int index();
-    int addTag(const std::filesystem::path &_path);
-    int removeTag(const std::filesystem::path &_path);
-    ~Box();
-    std::vector<std::string> tagList;
+ public:
+  Box(const std::filesystem::path &_rootPath);
+  int wrap();
+  int create();
+  int unwrap();
+  int index();
+  int addTag(const std::filesystem::path &_path);
+  int removeTag(const std::filesystem::path &_path);
+  ~Box();
+  std::vector<std::string> tagList;
 };
 
-#endif // !BOX_H_
+#endif  // !BOX_H_
