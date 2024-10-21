@@ -1,2 +1,2 @@
 CompileFlags:
-  Add: -Iinclude
+  Add: [-Iinclude, -I../src/include]

@@ -2,7 +2,7 @@ CC = gcc
 CFLAGS = -Wall -Wextra -pedantic
 INCLUDE = -Isrc/include
 LIBRARY = 
-SRC = 
+SRC = src/counter.c
 OUT = -o out/box
 MAIN = src/main.c
 
@@ -18,3 +18,14 @@ release:
 runRelease: release
 	cd out && clear && ./box $(ARGS)
 
+test:
+	$(CC) $(CFLAGS) -ggdb $(INCLUDE) $(LIBRARY) $(OUT) $(SRC) tests/*$(NAME)*.c
+
+runTest: test
+	cd out && clear && ./box $(ARGS)
+
+memCheck: debug
+	cd out && clear && valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./box $(ARGS)
+
+memCheckTest: test
+	cd out && clear && valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes ./box $(ARGS)

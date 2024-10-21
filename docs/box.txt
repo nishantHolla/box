@@ -1,0 +1,110 @@
+===================================================================================================
+
+BOX v0.1
+
+A CIL program for filesystem encryption using OpenSSL's AES implementation.
+
+github.com/nishantHolla
+
+===================================================================================================
+
+Index
+-----
+
+1. Definitions and Macros
+2. Enums
+3. Counter
+
+1. Definitions and Macros
+-------------------------
+
+B_VERSION
+
+  Version of Box.
+
+FNV_OFFSET
+
+  Offset used by FNV hashing algorithm in b_counter_hash.
+
+FNV_PRIM
+
+  Prime number used by FNV hashing algorithm in b_counter_hash.
+
+B_COUNTER_KEY_LENGTH
+
+  Length of the key that can be stored in B_COUNTER. It is the length of SHA256 in OpenSSL.
+
+B_COUNTER_CAPACITY
+
+  Capacity of buffer in B_COUNTER.
+
+2. Enums
+--------
+
+typedef enum B_EXIT_CODE B_EXIT_CODE
+
+  Exit codes returned by functions that promise an exit code.
+
+  B_EC_SUCCESS: Returned on success
+  B_EC_INVALID_ARG: Returned when argument for a function is invalid
+  B_EC_MALLOC_FAILED: Returned when malloc failed
+
+3. Counter
+----------
+
+typedef struct B_COUNTER_BUCKET B_COUNTER_BUCKET
+
+  Stores one key and its count. Also stores address of next bucket.
+
+typedef struct B_COUNTER B_COUNTER
+
+  Holds B_COUNTER_CAPACITY number of B_COUNTER_BUCKET in buffer. Also holds number of unique keys in
+  buffer.
+
+B_EXIT_CODE b_counter_init(B_COUNTER *counter)
+
+  Initializes the given counter.
+
+  Can return the following exit codes:
+    B_EC_INVALID_ARG, B_EC_SUCCESS
+
+B_COUNTER_BUCKET *b_counter_create_bucket(const uchar_t *key)
+
+  Creates and returns a B_COUNTER_BUCKET with the provided key by calling malloc. The key is assumed
+  to be of correct size.
+
+  Can return the following exit codes:
+    B_EC_SUCCESS, B_EC_MALLOC_FAILED
+
+uint64_t b_counter_hash(const uchar_t *key)
+
+  FNV hashing function used to hash key. Depends on definitions FNV_OFFSET and FNV_PRIM. The key is
+  assumed to be of correct size.
+
+  Always returns the hash of the key.
+
+uint64_t b_counter_count(const uchar_t *key, B_COUNTER *counter, B_COUNTER_BUCKET **result)
+
+  Returns the count of the provided key in the given counter. The key is assumed to be of correct size.
+  Returns 0 if counter is NULL else returns the count of the key
+
+B_EXIT_CODE b_counter_add(const uchar_t *key, B_COUNTER *counter)
+
+  Adds the provided key in the given counter. The key is assumed to be of correct size.
+
+  Can return the following exit codes:
+    B_EC_INVALID_ARG, B_EC_MALLOC_FAILED, B_EC_SUCCESS
+
+B_EXIT_CODE b_counter_remove(const uchar_t *key, B_COUNTER *counter)
+
+  Removes the provided key in the given counter if it exists. The key is assumed to be of correct size.
+
+  Can return the following exit codes:
+    B_EC_INVALID_ARG, B_EC_SUCCESS
+
+B_EXIT_CODE b_counter_free(B_COUNTER *counter)
+
+  Frees the given counter. The provided counter must not be used again afterwards.
+
+  Can return the following exit codes:
+    B_EC_INVALID_ARG, B_EC_SUCCESS
