@@ -8,12 +8,15 @@ github.com/nishantHolla
 
 ===================================================================================================
 
+
 Index
 -----
 
 1. Definitions and Macros
 2. Enums
 3. Counter
+4. Crypto
+
 
 1. Definitions and Macros
 -------------------------
@@ -30,13 +33,30 @@ FNV_PRIM
 
   Prime number used by FNV hashing algorithm in b_counter_hash.
 
+B_COUNTER_CAPACITY
+
+  Capacity of buffer in B_COUNTER.
+
 B_COUNTER_KEY_LENGTH
 
   Length of the key that can be stored in B_COUNTER. It is the length of SHA256 in OpenSSL.
 
-B_COUNTER_CAPACITY
+B_CRYPTO_KEY_LENGTH 
+  
+  Length of the key used by the cryptographic functions. It is 32 bit in length.
 
-  Capacity of buffer in B_COUNTER.
+B_CRYPTO_IV_LENGTH
+
+  Length of the initializing vector used by the cryptographic function. It is 16 bit in length.
+
+B_CRYPTO_SHA256_LENGTH
+
+  Length of SHA256 hash. It is the length of SHA256 in OpenSSL.
+
+B_CRYPTO_BUFFER_SIZE
+
+  Size of buffer used while encrypting or decrypting files. It is 4KB.
+
 
 2. Enums
 --------
@@ -48,6 +68,13 @@ typedef enum B_EXIT_CODE B_EXIT_CODE
   B_EC_SUCCESS: Returned on success
   B_EC_INVALID_ARG: Returned when argument for a function is invalid
   B_EC_MALLOC_FAILED: Returned when malloc failed
+  B_EC_SHA256_FAILED: Returned when computing SHA256 fails
+  B_EC_FILE_OPEN_FAILED: Returned when opening a file fails
+  B_EC_CRYPTO_CTX_FAILED: Returned when creating cryptographic context fails
+  B_EC_CRYPTO_INIT_FAILED: Returned when initializing cryptographic context fails
+  B_EC_CRYPTO_UPDATE_FAILED: Returned when updating cryptographic context fails
+  B_EC_CRYPTO_FINAL_FAILED: Returned when finalizing cryptographic context fails
+
 
 3. Counter
 ----------
@@ -60,13 +87,6 @@ typedef struct B_COUNTER B_COUNTER
 
   Holds B_COUNTER_CAPACITY number of B_COUNTER_BUCKET in buffer. Also holds number of unique keys in
   buffer.
-
-B_EXIT_CODE b_counter_init(B_COUNTER *counter)
-
-  Initializes the given counter.
-
-  Can return the following exit codes:
-    B_EC_INVALID_ARG, B_EC_SUCCESS
 
 B_COUNTER_BUCKET *b_counter_create_bucket(const uchar_t *key)
 
@@ -88,6 +108,13 @@ uint64_t b_counter_count(const uchar_t *key, B_COUNTER *counter, B_COUNTER_BUCKE
   Returns the count of the provided key in the given counter. The key is assumed to be of correct size.
   Returns 0 if counter is NULL else returns the count of the key
 
+B_EXIT_CODE b_counter_init(B_COUNTER *counter)
+
+  Initializes the given counter.
+
+  Can return the following exit codes:
+    B_EC_INVALID_ARG, B_EC_SUCCESS
+
 B_EXIT_CODE b_counter_add(const uchar_t *key, B_COUNTER *counter)
 
   Adds the provided key in the given counter. The key is assumed to be of correct size.
@@ -108,3 +135,56 @@ B_EXIT_CODE b_counter_free(B_COUNTER *counter)
 
   Can return the following exit codes:
     B_EC_INVALID_ARG, B_EC_SUCCESS
+
+
+4. Crypto
+---------
+
+typedef struct B_CRYPTO_PAIR B_CRYPTO_PAIR
+
+  Contains uchar_t key of size B_CRYPTO_KEY_LENGTH and uchar_t iv of size B_CRYPTO_IV_LENGTH.
+
+B_EXIT_CODE b_crypto_sha256_string(const char *in, const size_t length, uchar_t *out)
+
+  Computes the SH256 of the given string in of given length and writes it to buffer out. The out
+  buffer is assumed to be of correct size.
+
+  Can return the following exit codes:
+    B_EC_SHA256_FAILED, B_EC_SUCCESS
+
+B_EXIT_CODE b_crypto_sha256_file(const char *in_path, uchar_t *out)
+
+  Computes the SHA256 of the file at given in_path and writes it to buffer out. The out buffer
+  is assumed to be of correct size.
+
+  Can return the following exit codes:
+    B_EC_FILE_OPEN_FAILED, B_EC_SUCCESS
+
+B_EXIT_CODE b_crypto_gen_cp(const char *initializer, const size_t length, B_CRYPTO_PAIR *cp)
+
+  Generates a cryptographic pair for the given initializer string.
+
+  Can return the following exit codes:
+    B_EC_SHA256_FAILED, B_EC_SUCCESS
+
+B_EXIT_CODE b_crypto_encrypt_file(const char *in_path, const char *out_path, B_CRYPTO_PAIR *cp)
+
+  Encrypts the file at given in_path to the given out_path with the provided cryptographic pair cp.
+
+  Can return the following exit codes:
+    B_EC_FILE_OPEN_FAILED, B_EC_CRYPTO_CTX_FAILED, B_EC_CRYPTO_INIT_FAILED, B_EC_CRYPTO_UPDATE_FAILED
+    B_EC_CRYPTO_FINAL_FAILED, B_EC_SUCCESS
+
+B_EXIT_CODE b_crypto_decrypt_file(const char *in_path, const char *out_path, B_CRYPTO_PAIR *cp)
+
+  Decrypts the file at given in_path to the given out_path with the provided cryptographic pair cp.
+
+  Can return the following exit codes:
+    B_EC_FILE_OPEN_FAILED, B_EC_CRYPTO_CTX_FAILED, B_EC_CRYPTO_INIT_FAILED, B_EC_CRYPTO_UPDATE_FAILED
+    B_EC_CRYPTO_FINAL_FAILED, B_EC_SUCCESS
+
+void b_crypto_file_cleanup(EVP_CIPHER_CTX *ctx, FILE *in_file, FILE *out_file)
+
+  Used internally by b_crypto_encrypt_file and b_crypto_decrypt_file to free the given resources.
+
+  Does not return anything.

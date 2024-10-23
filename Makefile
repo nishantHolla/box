@@ -1,8 +1,8 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -pedantic
 INCLUDE = -Isrc/include
-LIBRARY = 
-SRC = src/counter.c
+LIBRARY = -lssl -lcrypto
+SRC = src/counter.c src/crypto.c
 OUT = -o out/box
 MAIN = src/main.c
 

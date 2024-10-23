@@ -204,8 +204,6 @@ int main(void) {
     TEST_CASE_PASSED;
   }
 
-  printf("-------------------------------------\n");
-  printf("Result: Passed %d tests out of %d\n", test_case_passed, test_case_length);
-
+  TEST_RESULT;
   return 0;
 }
