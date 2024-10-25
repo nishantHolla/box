@@ -65,10 +65,28 @@ typedef struct B_CRYPTO_PAIR {
 
 B_EXIT_CODE b_crypto_sha256_string(const char *in, const size_t length, uchar_t *out);
 B_EXIT_CODE b_crypto_sha256_file(const char *in_path, uchar_t *out);
+
 B_EXIT_CODE b_crypto_gen_cp(const char *initializer, const size_t length, B_CRYPTO_PAIR *cp);
+
+B_EXIT_CODE b_crypto_encode_string(
+  const uchar_t *in, const size_t length, char *out, size_t *out_length
+);
+B_EXIT_CODE b_crypto_decode_string(
+  char *in, const size_t length, uchar_t *out, size_t *out_length
+);
+int hex_to_dec(const char x);
+
+B_EXIT_CODE b_crypto_encrypt_string(
+  const char *in, const size_t length, uchar_t *out, size_t *out_length, B_CRYPTO_PAIR *cp
+);
+B_EXIT_CODE b_crypto_decrypt_string(
+  const uchar_t *in, const size_t length, char *out, size_t *out_length, B_CRYPTO_PAIR *cp
+);
 
 B_EXIT_CODE b_crypto_encrypt_file(const char *in_path, const char *out_path, B_CRYPTO_PAIR *cp);
 B_EXIT_CODE b_crypto_decrypt_file(const char *in_path, const char *out_path, B_CRYPTO_PAIR *cp);
-void b_crypto_file_cleanup(EVP_CIPHER_CTX *ctx, FILE *in_file, FILE *out_file);
+
+void b_crypto_cipher_cleanup(EVP_CIPHER_CTX *ctx, FILE *in_file, FILE *out_file);
+void b_crypto_sha_cleanup(EVP_MD_CTX *ctx, FILE *in_file, FILE *out_file);
 
 #endif // !BOX_H_
