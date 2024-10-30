@@ -14,8 +14,9 @@ Index
 
 1. Definitions and Macros
 2. Enums
-3. Counter
-4. Crypto
+3. Path
+4. Counter
+5. Crypto
 
 
 1. Definitions and Macros
@@ -24,6 +25,10 @@ Index
   => B_VERSION
 
     Version of Box.
+
+  => B_PATH_MAX_LENGTH
+
+    Maximum path length accepted
 
   => FNV_OFFSET
 
@@ -75,8 +80,39 @@ Index
     B_EC_CRYPTO_UPDATE_FAILED: Returned when updating cryptographic context fails
     B_EC_CRYPTO_FINAL_FAILED: Returned when finalizing cryptographic context fails
 
+  => typedef enum B_PATH_STAT B_PATH_STAT
 
-3. Counter
+    Status codes returned by b_path_stat function to determine the status of a path.
+
+    B_PATH_DIR: The path is directory
+    B_PATH_FILE: The path is a file
+    B_PATH_LINK_DIR: The path is a sym link to directory
+    B_PATH_LINK_FILE: The path is a sym link to file
+    B_PATH_UNKNOWN: The path stat could not be determined
+    B_PATH_ERROR: The path does not exists
+
+
+3. Path
+-------
+
+  => B_EXIT_CODE b_path_abs(const char *in, char *out)
+
+    Computes the absolute path of the given path in and stores it in out. Out is assumed to be of
+    sufficient size.
+
+    Can return the following exit codes:
+      B_EC_INVALID_ARG
+      B_EC_SUCCESS
+
+
+  => B_PATH_STAT b_path_stat(const char *path)
+
+    Identifies the stat of the given path in.
+
+    Returns one of B_PATH_STAT value.
+
+
+4. Counter
 ----------
 
   => typedef struct B_COUNTER_BUCKET B_COUNTER_BUCKET
@@ -143,7 +179,7 @@ Index
       B_EC_SUCCESS
 
 
-4. Crypto
+5. Crypto
 ---------
 
   => typedef struct B_CRYPTO_PAIR B_CRYPTO_PAIR

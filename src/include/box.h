@@ -7,6 +7,8 @@
 
 #define B_VERSION "0.1"
 
+#define B_PATH_MAX_LENGTH 1024
+
 #define FNV_OFFSET 14695981039346656037UL
 #define FNV_PRIME 1099511628211UL
 
@@ -31,8 +33,22 @@ typedef enum B_EXIT_CODE {
   B_EC_CRYPTO_CTX_FAILED,
   B_EC_CRYPTO_INIT_FAILED,
   B_EC_CRYPTO_UPDATE_FAILED,
-  B_EC_CRYPTO_FINAL_FAILED
+  B_EC_CRYPTO_FINAL_FAILED,
 } B_EXIT_CODE;
+
+// Path
+
+typedef enum B_PATH_STAT {
+  B_PATH_DIR,
+  B_PATH_FILE,
+  B_PATH_LINK_DIR,
+  B_PATH_LINK_FILE,
+  B_PATH_UNKNOWN,
+  B_PATH_ERROR
+} B_PATH_STAT;
+
+B_EXIT_CODE b_path_abs(const char *in, char *out);
+B_PATH_STAT b_path_stat(const char *path);
 
 // Counter
 
