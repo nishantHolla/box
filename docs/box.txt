@@ -17,6 +17,7 @@ Index
 3. Path
 4. Counter
 5. Crypto
+6. Box
 
 
 1. Definitions and Macros
@@ -62,6 +63,17 @@ Index
 
     Size of buffer used while encrypting or decrypting files. It is 4KB.
 
+  => B_BOX_MAX_NAME_LENGTH
+
+    Maximum length of box name
+
+  => B_BOX_MAX_LINE_LENGTH
+
+    Maximum line length in box descriptor file
+
+  => B_BOX_DESC_FILE
+
+    File name that identifies a box descriptor file
 
 2. Enums
 --------
@@ -79,6 +91,7 @@ Index
     B_EC_CRYPTO_INIT_FAILED: Returned when initializing cryptographic context fails
     B_EC_CRYPTO_UPDATE_FAILED: Returned when updating cryptographic context fails
     B_EC_CRYPTO_FINAL_FAILED: Returned when finalizing cryptographic context fails
+    B_EC_BOX_INIT_FAILD: Returned when box initialization fails
 
   => typedef enum B_PATH_STAT B_PATH_STAT
 
@@ -110,6 +123,14 @@ Index
     Identifies the stat of the given path in.
 
     Returns one of B_PATH_STAT value.
+
+  => B_EXIT_CODE b_path_concat(const char *left, const char *right, char *out)
+
+    Concatenates two given paths and stores it in out. Out is assumed to be of correct size.
+
+    Can return the following exit codes:
+      B_EC_INVALID_ARG
+      B_EC_SUCCESS
 
 
 4. Counter
@@ -306,3 +327,30 @@ Index
     User internally by b_crypto_sha256_file to free the given resources.
 
     Does not return anything.
+
+
+6. Box
+------
+
+  => typedef struct B_BOX B_BOX
+
+    Contains the definition of a box.
+
+  => B_EXIT_CODE b_box_init(const char root_path[B_PATH_MAX_LENGTH], B_BOX *box)
+
+    Initializes a given box with the given root_path. If the root_path contains a valid box descriptor
+    file, it is read and the box is updated with the given box.
+
+    Can return the following exit codes:
+      B_EC_INVALID_ARG
+      B_EC_FILE_OPEN_FAILED
+      B_EC_BOX_INIT_FAILD
+      B_EC_SUCCESS
+
+  => B_EXIT_CODE b_box_free(B_BOX *box)
+
+    Writes the box to a box descriptor file if it is valid and then frees the given box which should
+    not be used after.
+
+    Can return the following exit codes:
+      B_EC_SUCCESS

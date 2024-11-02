@@ -70,8 +70,8 @@ B_EXIT_CODE b_crypto_encode_string(
 ) {
   *out_length = 0;
 
-  for (int i=0; i<length; i++) {
-    snprintf(&(out[2*i]), 3, "%02x", (const char)in[i]);
+  for (size_t i=0; i<length; i++) {
+    snprintf(&(out[2*i]), 3, "%02x", in[i]);
     *out_length += 2;
   }
 

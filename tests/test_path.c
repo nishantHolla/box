@@ -74,6 +74,7 @@ int main(void) {
   }
 
   fclose(test_file);
+  TEST_RESULT;
   return 0;
 }
 
