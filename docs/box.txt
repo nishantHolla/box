@@ -92,6 +92,10 @@ Index
     B_EC_CRYPTO_UPDATE_FAILED: Returned when updating cryptographic context fails
     B_EC_CRYPTO_FINAL_FAILED: Returned when finalizing cryptographic context fails
     B_EC_BOX_INIT_FAILD: Returned when box initialization fails
+    B_EC_BOX_FREE_FAILED: Returned when box free fails
+    B_EC_PATH_NOT_FOUND: Returned when the path that was begin serached was not found
+    B_EC_BOX_EXISTS: Returned when the box exists when it shouldn't have existed
+    B_EC_IO_INPUT_FAILED: Returned when IO input from the user fails
 
   => typedef enum B_PATH_STAT B_PATH_STAT
 
@@ -353,4 +357,36 @@ Index
     not be used after.
 
     Can return the following exit codes:
+      B_EC_BOX_FREE_FAILED
+      B_EC_SUCCESS
+
+  => B_EXIT_CODE b_box_check_descendants(const char *root_path, char *result)
+
+    Checks if box descriptor file exists as descendant of the given root path. If it exists, the
+    parent path is written to the result and B_EC_SUCCESS is returend else content of result is
+    cleared and B_EC_PATH_NOT_FOUND is returned.
+
+    Can return the following exit codes:
+      B_EC_PATH_NOT_FOUND
+      B_EC_SUCCESS
+
+  => B_EXIT_CODE b_box_check_ancestors(const char *root_path, char *result)
+
+    Checks if box descriptor file exists as ancestor of the given root path. If it exists, the
+    parent path is written to the result and B_EC_SUCCESS is returend else content of result is
+    clleared and B_EC_PATH_NOT_FOUND is returned.
+
+    Can return the following exit codes:
+      B_EC_PATH_NOT_FOUND
+      B_EC_SUCCESS
+
+  => B_EXIT_CODE b_box_create(B_BOX *box)
+
+    Checks if root_path of the given box can have a valid box. If yes, asks for necessary values from
+    the user and modifies necessary values of the box and when b_box_free is called, the new box
+    descriptor file is written.
+
+    Can return the following exit codes:
+      B_EC_BOX_EXISTS
+      B_EC_IO_INPUT_FAILED
       B_EC_SUCCESS

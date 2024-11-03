@@ -97,7 +97,7 @@ B_EXIT_CODE b_crypto_decode_string(
 ) {
   *out_length = 0;
 
-  for (int i=0; i<length; i += 2) {
+  for (size_t i=0; i<length; i += 2) {
     int high = hex_to_dec(in[i]);
     int low = hex_to_dec(in[i+1]);
 

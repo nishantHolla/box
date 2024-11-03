@@ -21,6 +21,7 @@
 #define B_CRYPTO_BUFFER_SIZE 4096
 
 #define B_BOX_MAX_NAME_LENGTH 100
+#define B_BOX_MAX_PASSWORD_LENGTH 100
 #define B_BOX_MAX_LINE_LENGTH B_CRYPTO_SHA256_LENGTH * 2 + 10
 #define B_BOX_DESC_FILE "box_desc.txt"
 
@@ -39,7 +40,10 @@ typedef enum B_EXIT_CODE {
   B_EC_CRYPTO_UPDATE_FAILED,
   B_EC_CRYPTO_FINAL_FAILED,
   B_EC_BOX_INIT_FAILED,
-  B_EC_BOX_FREE_FAILED
+  B_EC_BOX_FREE_FAILED,
+  B_EC_PATH_NOT_FOUND,
+  B_EC_IO_INPUT_FAILED,
+  B_EC_BOX_EXISTS
 } B_EXIT_CODE;
 
 // Path
@@ -56,6 +60,7 @@ typedef enum B_PATH_STAT {
 B_EXIT_CODE b_path_abs(const char *in, char *out);
 B_PATH_STAT b_path_stat(const char *path);
 B_EXIT_CODE b_path_concat(const char *left, const char *right, char *out);
+B_EXIT_CODE b_path_parent(const char *in, char *out);
 
 // Counter
 
@@ -122,7 +127,10 @@ typedef struct B_BOX {
   B_COUNTER enc_file_hash_counter;
 } B_BOX;
 
-B_EXIT_CODE b_box_init(const char root_path[B_PATH_MAX_LENGTH], B_BOX *box);
+B_EXIT_CODE b_box_init(const char *root_path, B_BOX *box);
 B_EXIT_CODE b_box_free(B_BOX *box);
+B_EXIT_CODE b_box_check_descendants(const char *root_path, char *result);
+B_EXIT_CODE b_box_check_ancestors(const char *root_path, char *result);
+B_EXIT_CODE b_box_create(B_BOX *box);
 
 #endif // !BOX_H_

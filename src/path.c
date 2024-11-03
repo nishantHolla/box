@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <libgen.h>
 #include <string.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -60,5 +61,12 @@ B_EXIT_CODE b_path_concat(const char *left, const char *right, char *out) {
   }
 
   strncat(out, right, B_PATH_MAX_LENGTH - left_len);
+  return B_EC_SUCCESS;
+}
+
+B_EXIT_CODE b_path_parent(const char *in, char *out) {
+  strncpy(out, in, B_PATH_MAX_LENGTH);
+  dirname(out);
+
   return B_EC_SUCCESS;
 }

@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -68,6 +69,17 @@ int main(void) {
   }
   else if ((st = b_path_stat(test_sym_dir_path)) != B_PATH_LINK_DIR) {
     TEST_CASE_FAILED("Sym dir expected %d got %d", B_PATH_LINK_DIR, st);
+  }
+  else {
+    TEST_CASE_PASSED;
+  }
+
+  TEST_CASE("b_path_parent");
+
+  char parent_test[B_PATH_MAX_LENGTH];
+  b_path_parent("/test/dir", parent_test);
+  if (strncmp(parent_test, "/test", B_PATH_MAX_LENGTH) != 0) {
+    TEST_CASE_FAILED("Expected %s got %s", "/test", parent_test);
   }
   else {
     TEST_CASE_PASSED;
