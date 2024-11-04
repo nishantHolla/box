@@ -1,9 +1,13 @@
 #ifndef BOX_H_
 #define BOX_H_
 
+#define _XOPEN_SOURCE 700
+#define __USE_XOPEN_EXTENDED
+
 #include <openssl/evp.h>
 #include <openssl/sha.h>
 #include <stdint.h>
+#include <ftw.h>
 
 #define B_VERSION "0.1"
 
@@ -22,6 +26,7 @@
 
 #define B_BOX_MAX_NAME_LENGTH 100
 #define B_BOX_MAX_PASSWORD_LENGTH 100
+#define B_BOX_MAX_FILE_NAME_LENGTH 100
 #define B_BOX_MAX_LINE_LENGTH B_CRYPTO_SHA256_LENGTH * 2 + 10
 #define B_BOX_DESC_FILE "box_desc.txt"
 
@@ -43,7 +48,9 @@ typedef enum B_EXIT_CODE {
   B_EC_BOX_FREE_FAILED,
   B_EC_PATH_NOT_FOUND,
   B_EC_IO_INPUT_FAILED,
-  B_EC_BOX_EXISTS
+  B_EC_BOX_EXISTS,
+  B_EC_BOX_DOES_NOT_EXIST,
+  B_EC_AUTH_FAILED
 } B_EXIT_CODE;
 
 // Path
@@ -124,13 +131,20 @@ typedef struct B_BOX {
   char root_path[B_PATH_MAX_LENGTH];
   char name[B_BOX_MAX_NAME_LENGTH];
   uchar_t password_hash[B_CRYPTO_SHA256_LENGTH];
+  B_CRYPTO_PAIR cp;
   B_COUNTER enc_file_hash_counter;
 } B_BOX;
 
 B_EXIT_CODE b_box_init(const char *root_path, B_BOX *box);
 B_EXIT_CODE b_box_free(B_BOX *box);
+int b_box_check_descendants_helper(const char *fpath, const struct stat *sb,
+          int typeflag, struct FTW *ftwbuf);
 B_EXIT_CODE b_box_check_descendants(const char *root_path, char *result);
 B_EXIT_CODE b_box_check_ancestors(const char *root_path, char *result);
 B_EXIT_CODE b_box_create(B_BOX *box);
+int b_box_wrap_helper(const char *fpath, const struct stat *sb,
+          int typeflag, struct FTW *ftwbuf);
+B_EXIT_CODE b_box_wrap(B_BOX *box);
+B_EXIT_CODE b_box_authenticate(B_BOX *box);
 
 #endif // !BOX_H_

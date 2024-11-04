@@ -67,6 +67,14 @@ Index
 
     Maximum length of box name
 
+  => B_BOX_MAX_PASSWORD_LENGTH
+
+    Maximum length of password user can set for a box
+
+  => B_BOX_MAX_FILE_NAME_LENGTH
+
+    Maximum length of file name recognized by box
+
   => B_BOX_MAX_LINE_LENGTH
 
     Maximum line length in box descriptor file
@@ -74,6 +82,7 @@ Index
   => B_BOX_DESC_FILE
 
     File name that identifies a box descriptor file
+
 
 2. Enums
 --------
@@ -94,8 +103,10 @@ Index
     B_EC_BOX_INIT_FAILD: Returned when box initialization fails
     B_EC_BOX_FREE_FAILED: Returned when box free fails
     B_EC_PATH_NOT_FOUND: Returned when the path that was begin serached was not found
-    B_EC_BOX_EXISTS: Returned when the box exists when it shouldn't have existed
     B_EC_IO_INPUT_FAILED: Returned when IO input from the user fails
+    B_EC_BOX_EXISTS: Returned when the box exists when it shouldn't have existed
+    B_EC_BOX_DOES_NOT_EXIST: Returned when the box does not exists when it should have existed
+    B_EC_AUTH_FAILED: Returned when attempt to authenticate failed
 
   => typedef enum B_PATH_STAT B_PATH_STAT
 
@@ -134,6 +145,13 @@ Index
 
     Can return the following exit codes:
       B_EC_INVALID_ARG
+      B_EC_SUCCESS
+
+  => B_EXIT_CODE b_path_parent(const char *in, char *out)
+
+    Computes the parent path of given in path and stores it in out. Out is assumed to be of correct size.
+
+    Can return the following exit codes:
       B_EC_SUCCESS
 
 
@@ -389,4 +407,31 @@ Index
     Can return the following exit codes:
       B_EC_BOX_EXISTS
       B_EC_IO_INPUT_FAILED
+      B_EC_SUCCESS
+
+  => int b_box_wrap_helper(const char *fpath, const struct stat *sb,
+          int typeflag, struct FTW *ftwbuf)
+
+    Helper function to the b_box_wrap routine that handles a signle file encryption.
+    Before this function is called, the current_box static variable must be set to the current active
+    box as additional parameters can not be passed into this function.
+
+    Returns 0 if directory walk should be continued.
+
+  => B_EXIT_CODE b_box_wrap(B_BOX *box)
+
+    Encrypts all files recursively for the given box
+
+    Can return the following exit codes:
+      B_EC_BOX_DOES_NOT_EXIST
+      B_EC_AUTH_FAILED
+      B_EC_SUCCESS
+      Non zero value returned by b_box_wrap_helper
+
+  => B_EXIT_CODE b_box_authenticate(B_BOX *box)
+
+    Handles IO for authentication of the given box
+
+    Can return the following exit codes:
+      B_EC_AUTH_FAILED
       B_EC_SUCCESS
