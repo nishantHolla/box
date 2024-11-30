@@ -324,6 +324,73 @@ int b_box_wrap_helper(const char *fpath, const struct stat *sb,
   return 0;
 }
 
+int b_box_unwrap_helper(const char *fpath, const struct stat *sb,
+                        int typeflag, struct FTW *ftwbuf) {
+
+  if (!current_box) {
+    return B_EC_BOX_DOES_NOT_EXIST;
+  }
+
+  if (typeflag != FTW_F) {
+    return 0;
+  }
+
+  char file_path[B_PATH_MAX_LENGTH];
+  strncpy(file_path, fpath, B_PATH_MAX_LENGTH);
+
+  char *filename = basename(file_path);
+
+  for (int i=0; i<ignores_length; i++) {
+    if (strncmp(filename, ignores[i], 100) == 0) {
+      return 0;
+    }
+  }
+
+  uchar_t file_hash[B_CRYPTO_SHA256_LENGTH];
+  if (b_crypto_sha256_file(fpath, file_hash) != B_EC_SUCCESS) {
+    return 0;
+  }
+
+  if (!b_counter_count(file_hash, &(current_box->enc_file_hash_counter), NULL)) {
+    return 0;
+  }
+
+  uchar_t new_file_name_hex[B_BOX_MAX_FILE_NAME_LENGTH * 2 + 1];
+  size_t out_hex_len = 0;
+  if (b_crypto_decode_string(filename, strlen(filename), new_file_name_hex, &out_hex_len) != B_EC_SUCCESS) {
+    return 0;
+  }
+
+  char new_file_name[B_BOX_MAX_FILE_NAME_LENGTH];
+  size_t out_len = 0;
+  if (b_crypto_decrypt_string(new_file_name_hex, out_hex_len, new_file_name, &out_len, &current_box->cp) != B_EC_SUCCESS) {
+    return 0;
+  }
+  new_file_name[out_len] = 0;
+
+  char parent_path[B_PATH_MAX_LENGTH];
+  if (b_path_parent(fpath, parent_path) != B_EC_SUCCESS) {
+    return 0;
+  }
+
+  char new_path[B_PATH_MAX_LENGTH];
+  if (b_path_concat(parent_path, new_file_name, new_path) != B_EC_SUCCESS) {
+    return 0;
+  }
+
+  printf("Box unwrap: Decrypting %s\n", fpath);
+  if (b_crypto_decrypt_file(fpath, new_path, &current_box->cp) != B_EC_SUCCESS) {
+    return 0;
+  }
+
+  remove(fpath);
+  if (b_counter_remove(file_hash, &current_box->enc_file_hash_counter) != B_EC_SUCCESS) {
+    return 0;
+  }
+
+  return 0;
+}
+
 
 B_EXIT_CODE b_box_wrap(B_BOX *box) {
   if (!box->is_valid) {
@@ -336,6 +403,25 @@ B_EXIT_CODE b_box_wrap(B_BOX *box) {
 
   current_box = box;
   const int r = nftw(box->root_path, &b_box_wrap_helper, USE_FDS, FTW_PHYS);
+  if (r == 0) {
+    return B_EC_SUCCESS;
+  }
+  else {
+    return r;
+  }
+}
+
+B_EXIT_CODE b_box_unwrap(B_BOX *box) {
+  if (!box->is_valid) {
+    return B_EC_BOX_DOES_NOT_EXIST;
+  }
+
+  if (b_box_authenticate(box) != B_EC_SUCCESS) {
+    return B_EC_AUTH_FAILED;
+  }
+
+  current_box = box;
+  const int r = nftw(box->root_path, &b_box_unwrap_helper, USE_FDS, FTW_PHYS);
   if (r == 0) {
     return B_EC_SUCCESS;
   }

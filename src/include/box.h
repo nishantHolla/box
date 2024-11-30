@@ -145,6 +145,9 @@ B_EXIT_CODE b_box_create(B_BOX *box);
 int b_box_wrap_helper(const char *fpath, const struct stat *sb,
           int typeflag, struct FTW *ftwbuf);
 B_EXIT_CODE b_box_wrap(B_BOX *box);
+int b_box_unwrap_helper(const char *fpath, const struct stat *sb,
+          int typeflag, struct FTW *ftwbuf);
+B_EXIT_CODE b_box_unwrap(B_BOX *box);
 B_EXIT_CODE b_box_authenticate(B_BOX *box);
 
 #endif // !BOX_H_

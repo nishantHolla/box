@@ -11,7 +11,9 @@ int main(void) {
 
   B_BOX box;
   b_box_init("./dir", &box);
-  ec = b_box_wrap(&box);
+  // ec =b_box_create(&box);
+  // ec = b_box_wrap(&box);
+  ec = b_box_unwrap(&box);
   printf("Exit code: %d\n", ec);
   b_box_free(&box);
   return 0;
