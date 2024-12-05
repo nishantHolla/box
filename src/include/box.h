@@ -118,6 +118,9 @@ B_EXIT_CODE b_crypto_decrypt_string(
   const uchar_t *in, const size_t length, char *out, size_t *out_length, B_CRYPTO_PAIR *cp
 );
 
+B_EXIT_CODE b_crypto_encrypt_str(const char *in, size_t length, char *out, B_CRYPTO_PAIR *cp);
+B_EXIT_CODE b_crypto_decrypt_str(const char *in, size_t length, char *out, B_CRYPTO_PAIR *cp);
+
 B_EXIT_CODE b_crypto_encrypt_file(const char *in_path, const char *out_path, B_CRYPTO_PAIR *cp);
 B_EXIT_CODE b_crypto_decrypt_file(const char *in_path, const char *out_path, B_CRYPTO_PAIR *cp);
 

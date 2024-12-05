@@ -178,6 +178,61 @@ B_EXIT_CODE b_crypto_decrypt_string(
   return B_EC_SUCCESS;
 }
 
+B_EXIT_CODE b_crypto_encrypt_str(const char *in, size_t length, char *out, B_CRYPTO_PAIR *cp) {
+  int key = 0;
+  for (int i = 0; i < B_CRYPTO_KEY_LENGTH; i++) {
+    key += cp->key[i];
+  }
+
+  key = key % 26;
+
+  for (int i = 0; i < length; i++) {
+    if (in[i] >= 'a' && in[i] <= 'z') {
+      out[i] = (in[i] + key - 'a') % 26 + 'a';
+    }
+    else if (in[i] >= 'A' && in[i] <= 'Z') {
+      out[i] = (in[i] + key - 'A') % 26 + 'A';
+    }
+    else {
+      out[i] = in[i];
+    }
+  }
+
+  out[length] = 0;
+  return B_EC_SUCCESS;
+}
+
+B_EXIT_CODE b_crypto_decrypt_str(const char *in, size_t length, char *out, B_CRYPTO_PAIR *cp) {
+  int key = 0;
+  for (int i = 0; i < B_CRYPTO_KEY_LENGTH; i++) {
+    key += cp->key[i];
+  }
+
+  key = 26 - (key % 26);
+
+  for (int i = 0; i < length; i++) {
+    if (in[i] >= 'a' && in[i] <= 'z') {
+      out[i] = (in[i] + key - 'a') % 26 + 'a';
+    }
+    else if (in[i] >= 'A' && in[i] <= 'Z') {
+      out[i] = (in[i] + key - 'A') % 26 + 'A';
+    }
+    else if (in[i] >= '0' && in[i] <= '9') {
+      out[i] = (in[i] + key - '0') % 10 + '0';
+    }
+    else {
+      out[i] = in[i];
+    }
+  }
+
+  out[length] = 0;
+  return B_EC_SUCCESS;
+
+  return B_EC_SUCCESS;
+}
+
+
+
 B_EXIT_CODE b_crypto_encrypt_file(const char *in_path, const char *out_path, B_CRYPTO_PAIR *cp) {
   FILE *in_file = fopen(in_path, "rb");
   if (!in_file) {

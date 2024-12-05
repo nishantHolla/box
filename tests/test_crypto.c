@@ -154,6 +154,31 @@ int main(void) {
   TEST_OUTPUT("Encrypted", "%.*s", (int)enc_string_length, enc_string);
   TEST_OUTPUT("Decrypted", "%.*s", (int)dec_string_length, dec_string);
 
+  TEST_CASE("b_crypto_encrypt_str");
+
+  char enc_str[100];
+  char dec_str[100];
+
+  ec = b_crypto_encrypt_str(test_string, strlen(test_string), enc_str, &cp);
+  if (ec != B_EC_SUCCESS) {
+    TEST_CASE_FAILED("Encrypt fail. Exit code: %d", ec);
+  }
+
+  ec = b_crypto_decrypt_str(enc_str, strlen(enc_str), dec_str, &cp);
+  if (ec != B_EC_SUCCESS) {
+    TEST_CASE_FAILED("Decrypt fail. Exit code: %d", ec);
+  }
+  else if (strncmp(test_string, dec_str, strlen(dec_str)) != 0) {
+    TEST_CASE_FAILED("Expected %s got %.*s", test_string, (int)strlen(dec_str), dec_str);
+  }
+  else {
+    TEST_CASE_PASSED;
+  }
+
+  TEST_OUTPUT("Test string", "%s", test_string);
+  TEST_OUTPUT("Encrypted", "%.*s", (int)strlen(enc_str), enc_str);
+  TEST_OUTPUT("Decrypted", "%.*s", (int)strlen(dec_str), dec_str);
+
   TEST_CASE("b_crypto_encrypt_file");
 
   ec = b_crypto_encrypt_file(test_file_path, enc_file_path, &cp);

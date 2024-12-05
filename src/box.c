@@ -114,8 +114,10 @@ B_EXIT_CODE b_box_free(B_BOX *box) {
     for (int i=0; i<B_COUNTER_CAPACITY; i++) {
       B_COUNTER_BUCKET *b = box->enc_file_hash_counter.buffer[i];
       while (b) {
-        b_crypto_encode_string(b->key, B_CRYPTO_SHA256_LENGTH, hash_hex, &out_len);
-        fprintf(box_desc_file, "%s %d\n", hash_hex, b->count);
+        if (b->count != 0) {
+          b_crypto_encode_string(b->key, B_CRYPTO_SHA256_LENGTH, hash_hex, &out_len);
+          fprintf(box_desc_file, "%s %d\n", hash_hex, b->count);
+        }
         b = b->next;
       }
     }
@@ -253,6 +255,7 @@ B_EXIT_CODE b_box_create(B_BOX *box) {
 
 int b_box_wrap_helper(const char *fpath, const struct stat *sb,
                       int typeflag, struct FTW *ftwbuf) {
+  B_EXIT_CODE ec;
 
   if (!current_box) {
     return B_EC_BOX_DOES_NOT_EXIST;
@@ -267,57 +270,82 @@ int b_box_wrap_helper(const char *fpath, const struct stat *sb,
 
   char *filename = basename(file_path);
 
+  if (strnlen(filename, 255) > B_BOX_MAX_FILE_NAME_LENGTH) {
+    printf("Error: File name too long for file %s\n", file_path);
+    return 0;
+  }
+
   for (int i=0; i<ignores_length; i++) {
     if (strncmp(filename, ignores[i], 100) == 0) {
+      printf("Error: Ignoring file %s\n", file_path);
       return 0;
     }
   }
 
   uchar_t file_hash[B_CRYPTO_SHA256_LENGTH];
-  if (b_crypto_sha256_file(fpath, file_hash) != B_EC_SUCCESS) {
+
+  ec = b_crypto_sha256_file(fpath, file_hash);
+  if (ec != B_EC_SUCCESS) {
+    printf("Error: Calculation of SHA256 failed for %s\n", file_path);
+    printf("Exit code: %d\n", ec);
     return 0;
   }
 
-  if (b_counter_count(file_hash, &(current_box->enc_file_hash_counter), NULL)) {
-    return 0;
-  }
+  // if (b_counter_count(file_hash, &(current_box->enc_file_hash_counter), NULL)) {
+  //   printf("Error: %s is already encrypted\n", file_path);
+  //   return 0;
+  // }
 
-  uchar_t new_file_name[B_BOX_MAX_FILE_NAME_LENGTH];
-  size_t out_len = 0;
-  if (b_crypto_encrypt_string(filename, strlen(filename), new_file_name, &out_len, &current_box->cp) != B_EC_SUCCESS) {
-    return 0;
-  }
+  char new_file_name[B_BOX_MAX_FILE_NAME_LENGTH];
 
-  char new_file_name_hex[B_BOX_MAX_FILE_NAME_LENGTH * 2 + 1];
-  size_t out_hex_len = 0;
-  if (b_crypto_encode_string(new_file_name, out_len, new_file_name_hex, &out_hex_len) != B_EC_SUCCESS) {
+  ec = b_crypto_encrypt_str(filename, strlen(filename), new_file_name, &current_box->cp);
+  if (ec != B_EC_SUCCESS) {
+    printf("Error: Encrypting file name failed for %s\n", file_path);
+    printf("Exit code: %d\n", ec);
     return 0;
   }
 
   char parent_path[B_PATH_MAX_LENGTH];
-  if (b_path_parent(fpath, parent_path) != B_EC_SUCCESS) {
+
+  ec = b_path_parent(fpath, parent_path);
+  if (ec != B_EC_SUCCESS) {
+    printf("Error: Finding parent path failed for %s\n", file_path);
+    printf("Exit code: %d\n", ec);
     return 0;
   }
 
   char new_path[B_PATH_MAX_LENGTH];
-  if (b_path_concat(parent_path, new_file_name_hex, new_path) != B_EC_SUCCESS) {
+
+  ec = b_path_concat(parent_path, new_file_name, new_path);
+  if (ec != B_EC_SUCCESS) {
+    printf("Error: Path concatenation failed for %s\n", file_path);
+    printf("Exit code: %d\n", ec);
     return 0;
   }
 
-  printf("Box wrap: Encrypting %s\n", fpath);
+  // printf("Box wrap: Encrypting %s\n", fpath);
 
-  if (b_crypto_encrypt_file(fpath, new_path, &current_box->cp) != B_EC_SUCCESS) {
+  ec = b_crypto_encrypt_file(fpath, new_path, &current_box->cp);
+  if (ec != B_EC_SUCCESS) {
+    printf("Error: Encrypting file failed for file path %s\n", file_path);
+    printf("Exit code: %d\n", ec);
     return 0;
   }
 
   remove(fpath);
 
-  uchar_t new_file_hex[B_CRYPTO_SHA256_LENGTH];
-  if (b_crypto_sha256_file(new_path, new_file_hex) != B_EC_SUCCESS) {
+  uchar_t new_file_hash[B_CRYPTO_SHA256_LENGTH];
+  ec = b_crypto_sha256_file(new_path, new_file_hash);
+  if (ec != B_EC_SUCCESS) {
+    printf("Error: Calculation of SHA256 of encrypted file failed for %s\n", file_path);
+    printf("Exit code: %d\n", ec);
     return 0;
   }
 
-  if (b_counter_add(new_file_hex, &current_box->enc_file_hash_counter) != B_EC_SUCCESS) {
+  ec = b_counter_add(new_file_hash, &current_box->enc_file_hash_counter);
+  if (ec != B_EC_SUCCESS) {
+    printf("Error: Counter addition failed for %s\n", file_path);
+    printf("Exit code: %d\n", ec);
     return 0;
   }
 
@@ -326,6 +354,7 @@ int b_box_wrap_helper(const char *fpath, const struct stat *sb,
 
 int b_box_unwrap_helper(const char *fpath, const struct stat *sb,
                         int typeflag, struct FTW *ftwbuf) {
+  B_EXIT_CODE ec;
 
   if (!current_box) {
     return B_EC_BOX_DOES_NOT_EXIST;
@@ -340,51 +369,74 @@ int b_box_unwrap_helper(const char *fpath, const struct stat *sb,
 
   char *filename = basename(file_path);
 
+  if (strnlen(filename, 255) > B_BOX_MAX_FILE_NAME_LENGTH) {
+    printf("Error: File name too long for file %s\n", file_path);
+    return 0;
+  }
+
   for (int i=0; i<ignores_length; i++) {
     if (strncmp(filename, ignores[i], 100) == 0) {
+      printf("Error: Ignoring file %s\n", file_path);
       return 0;
     }
   }
 
   uchar_t file_hash[B_CRYPTO_SHA256_LENGTH];
-  if (b_crypto_sha256_file(fpath, file_hash) != B_EC_SUCCESS) {
+
+  ec = b_crypto_sha256_file(fpath, file_hash);
+  if (ec != B_EC_SUCCESS) {
+    printf("Error: Calculation of SHA256 failed for %s\n", file_path);
+    printf("Exit code: %d\n", ec);
     return 0;
   }
 
-  if (!b_counter_count(file_hash, &(current_box->enc_file_hash_counter), NULL)) {
-    return 0;
-  }
-
-  uchar_t new_file_name_hex[B_BOX_MAX_FILE_NAME_LENGTH * 2 + 1];
-  size_t out_hex_len = 0;
-  if (b_crypto_decode_string(filename, strlen(filename), new_file_name_hex, &out_hex_len) != B_EC_SUCCESS) {
-    return 0;
-  }
+  // if (!b_counter_count(file_hash, &(current_box->enc_file_hash_counter), NULL)) {
+  //   printf("Error: %s is already decrypted\n", file_path);
+  //   return 0;
+  // }
 
   char new_file_name[B_BOX_MAX_FILE_NAME_LENGTH];
-  size_t out_len = 0;
-  if (b_crypto_decrypt_string(new_file_name_hex, out_hex_len, new_file_name, &out_len, &current_box->cp) != B_EC_SUCCESS) {
+
+  ec = b_crypto_decrypt_str(filename, strlen(filename), new_file_name, &current_box->cp);
+  if (ec != B_EC_SUCCESS) {
+    printf("Error: Decrypting file name failed for %s\n", file_path);
+    printf("Exit code: %d\n", ec);
     return 0;
   }
-  new_file_name[out_len] = 0;
 
   char parent_path[B_PATH_MAX_LENGTH];
-  if (b_path_parent(fpath, parent_path) != B_EC_SUCCESS) {
+
+  ec = b_path_parent(fpath, parent_path);
+  if (ec != B_EC_SUCCESS) {
+    printf("Error: Finding parent path failed for %s\n", file_path);
+    printf("Exit code: %d\n", ec);
     return 0;
   }
 
   char new_path[B_PATH_MAX_LENGTH];
-  if (b_path_concat(parent_path, new_file_name, new_path) != B_EC_SUCCESS) {
+
+  ec = b_path_concat(parent_path, new_file_name, new_path);
+  if (ec != B_EC_SUCCESS) {
+    printf("Error: Path concatenation failed for %s\n", file_path);
+    printf("Exit code: %d\n", ec);
     return 0;
   }
 
-  printf("Box unwrap: Decrypting %s\n", fpath);
-  if (b_crypto_decrypt_file(fpath, new_path, &current_box->cp) != B_EC_SUCCESS) {
+  // printf("Box unwrap: Decrypting %s\n", fpath);
+
+  ec = b_crypto_decrypt_file(fpath, new_path, &current_box->cp);
+  if (ec != B_EC_SUCCESS) {
+    printf("Error: Decrypting file failed for file path %s\n", file_path);
+    printf("Exit code: %d\n", ec);
     return 0;
   }
 
   remove(fpath);
-  if (b_counter_remove(file_hash, &current_box->enc_file_hash_counter) != B_EC_SUCCESS) {
+
+  ec = b_counter_remove(file_hash, &current_box->enc_file_hash_counter);
+  if (ec != B_EC_SUCCESS) {
+    printf("Error: Counter subtraction failed for %s\n", file_path);
+    printf("Exit code: %d\n", ec);
     return 0;
   }
 
