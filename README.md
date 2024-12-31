@@ -14,7 +14,7 @@ cd box
 - Compile binary and place it in PATH. (restart terminal after running the command)
 
 ```bash
-make
+make release
 sudo mv ./out/box /bin
 ```
 
